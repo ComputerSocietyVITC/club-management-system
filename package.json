@@ -1,0 +1,14 @@
+{
+  "name": "club-management-system",
+  "version": "0.1.0",
+  "description": "Internal club management API",
+  "main": "index.js",
+  "repository": "https://github.com/ComputerSocietyVITC/Club-Management-System.git",
+  "author": "Abhijith Ganesh <git.watch.abhijith@outlook.com>",
+  "license": "custom",
+  "private": true,
+  "dependencies": {
+    "@types/node": "^18.11.12",
+    "typescript": "^4.9.4"
+  }
+}
