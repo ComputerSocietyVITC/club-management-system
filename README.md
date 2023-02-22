@@ -7,3 +7,4 @@ Tech we'll be using:
 - Javascript/Typescript
 - GraphQL
 - TailwindCSS
+ This is a test 
