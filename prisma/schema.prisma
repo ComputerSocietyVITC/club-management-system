@@ -8,8 +8,63 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Example {
-    id        String   @id @default(cuid())
+model Users {
+    id        Int      @id @default(cuid())
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+    regNo     String   @unique
+    userName  String   @unique
+    contactNo Int      @unique
+    role      String
+}
+
+model Tasks {
+    id        Int      @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    description String @unique
+    contactNo Int      @unique
+    createdBy Users    @relation(fields: [userID], references: [id])
+    userID    Int
+    assignedTo Projects @relation(fields: [projectID], references: [id])
+    projectId Int
+}
+
+model Projects {
+    id        Int      @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    title     String   @unique
+    status    String
+    contactNo Int      @unique
+    role      String
+}
+
+model Events {
+    id        Int      @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    name      String   @unique
+    startsAt  DateTime
+    venue     String
+}
+
+model WorksOn {
+    user      Users    @relation(fields: [userID], references: [id])
+    userID    Int
+    task      Tasks    @relation(fields: [taskID], references: [id])
+    taskID    Int
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    @@id([userID,taskID])
+}
+
+model Attends {
+    user      Users    @relation(fields: [userID], references: [id])
+    userID    Int
+    event     Events   @relation(fields: [eventID], references: [id])
+    eventID   Int
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    @@id([eventID,taskID])
 }
