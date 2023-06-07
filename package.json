@@ -5,6 +5,9 @@
   "scripts": {
     "build": "next build",
     "dev": "turbo dev:next",
+    "migrate":"prisma migrate dev",
+    "push":"prisma db push",
+    "pull":"prisma db pull",
     "dev:next": "next dev",
     "postinstall": "prisma generate",
     "lint": "next lint",
