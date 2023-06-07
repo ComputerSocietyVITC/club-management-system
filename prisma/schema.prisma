@@ -9,7 +9,7 @@ datasource db {
 }
 
 model Users {
-    id        Int      @id @default(cuid())
+    id        Int      @id @default(uuid())
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     regNo     String   @unique
@@ -19,7 +19,7 @@ model Users {
 }
 
 model Tasks {
-    id        Int      @id @default(cuid())
+    id        Int      @id @default(uuid())
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     description String @unique
@@ -31,7 +31,7 @@ model Tasks {
 }
 
 model Projects {
-    id        Int      @id @default(cuid())
+    id        Int      @id @default(uuid())
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     title     String   @unique
@@ -41,7 +41,7 @@ model Projects {
 }
 
 model Events {
-    id        Int      @id @default(cuid())
+    id        Int      @id @default(uuid())
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     name      String   @unique
