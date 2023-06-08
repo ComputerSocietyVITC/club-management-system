@@ -1,7 +1,29 @@
 export const resolvers = {
-    Query: {
-      viewer() {
-        return "Hello World!"
-      },
-    },
-  }
+  Query: {
+    assignedTasks: () => {},
+    attendedEvents: () => {},
+    isAdmin: () => {},
+    isactiveProject: () => {},
+    currentUserTasks: () => {},
+    openProjects: () => {},
+    openTasks: () => {},
+  },
+  Mutation: {
+    createUser: () => {},
+    createTask: () => {},
+    createProject: () => {},
+    createEvent: () => {},
+    assignTask: () => {},
+    attendEvent: () => {},
+    updateTask: () => {},
+    updateProjectLink: () => {},
+    updateProjectDesctiprion: () => {},
+    updateProjectStatus: () => {},
+    updateUserRole: () => {},
+    updateUserContactNo: () => {},
+    removeProject: () => {},
+    removeTask: () => {},
+    removeEvent: () => {},
+    removeAttendees: () => {},
+  },
+};
