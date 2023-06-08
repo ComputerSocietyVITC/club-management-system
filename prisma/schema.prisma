@@ -8,6 +8,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Clubs {
+  id        String    @id @default(uuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  name      String    @unique
+  president String
+  facultyCoordinator String
+  email     String    @unique
+  Projects  Projects[]
+  Members   Members[]
+}
+
 model Users {
   id        String    @id @default(uuid())
   createdAt DateTime  @default(now())
@@ -19,17 +31,16 @@ model Users {
   tasks     Tasks[]
   WorksOn   WorksOn[]
   Attends   Attends[]
+  Members   Members[]
 }
 
 model Tasks {
   id          String    @id @default(uuid())
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  status      Boolean
   description String    @unique
-  contactNo   Int       @unique
-  created_by  Users     @relation(fields: [UsersId], references: [id])
-  UsersId     String
+  createdBy   Users     @relation(fields: [userId], references: [id])
+  userId      String
   assignedTo  Projects  @relation(fields: [projectID], references: [id])
   projectID   String
   WorksOn     WorksOn[]
@@ -43,6 +54,8 @@ model Projects {
   status    String
   contactNo Int      @unique
   role      String
+  doneBy	Clubs    @relation(fields: [clubID], references: [id])
+  clubID	String
   Tasks     Tasks[]
 }
 
@@ -74,7 +87,17 @@ model Attends {
   eventID   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  taskID    String
 
-  @@id([eventID, taskID])
+  @@id([eventID, userID])
+}
+
+model Members {
+  user      Users    @relation(fields: [userID], references: [id])
+  userID    String
+  club      Clubs   @relation(fields: [clubID], references: [id])
+  clubID    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([clubID, userID])
 }
