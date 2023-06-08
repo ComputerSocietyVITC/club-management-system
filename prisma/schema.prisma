@@ -25,6 +25,7 @@ model Tasks {
   id          String    @id @default(uuid())
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  status      Boolean
   description String    @unique
   contactNo   Int       @unique
   created_by  Users     @relation(fields: [UsersId], references: [id])
