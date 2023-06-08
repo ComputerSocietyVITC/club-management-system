@@ -27,7 +27,6 @@ model Users {
   regNo     String    @unique
   userName  String    @unique
   contactNo Int       @unique
-  role      String
   tasks     Tasks[]
   WorksOn   WorksOn[]
   Attends   Attends[]
@@ -96,6 +95,7 @@ model Members {
   userID    String
   club      Clubs   @relation(fields: [clubID], references: [id])
   clubID    String
+  role      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
