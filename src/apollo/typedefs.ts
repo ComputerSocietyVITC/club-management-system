@@ -93,5 +93,14 @@ export const typeDefs = gql`
     createEvent(name: String!, startsAt: DateTime!, venue: String!): Event!
     assignTaskToUser(userID: Int!, taskID: Int!): WorkOn!
     attendEvent(userID: Int!, eventID: Int!): Attend!
+    updateTask(): Task!
+    updateProjectLink(projectID: Int!, link: String!): Project!
+    updateProjectDescription(projectID: Int!, description: String!): Project!
+    updateProjectStatus(projectID: Int!, status: String!): Project!
+    updateUserRole(userID: Int!, role: String!): User!
+    updateUserContactNo(): User!
+    removeProject(projectID: Int!): Project!
+    removeTask(taskID: Int!): Task!
+    removeAttendee(userID: Int!, eventID: Int!): Attend!
   }
 `;

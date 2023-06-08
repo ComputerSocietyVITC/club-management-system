@@ -97,7 +97,7 @@ export const resolvers = {
         where: { id: _args.eventID },
       });
     },
-    removeAttendees: (_parent: any, _args: any, context: Context) => {
+    removeAttendee: (_parent: any, _args: any, context: Context) => {
       return context.prisma.attends.delete({
         where: { eventID_userID: _args.attendeeID },
       });
