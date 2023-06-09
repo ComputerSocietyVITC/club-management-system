@@ -7,6 +7,7 @@ import {
   Tasks,
   Users,
   WorksOn,
+  Clubs,
 } from "@prisma/client";
 
 export const resolvers = {
@@ -24,14 +25,42 @@ export const resolvers = {
     getAllTasks: () => {
       return prisma.tasks.findMany({});
     },
-    // assignedTasks: () => {},
-    // attendedEvents: () => {},
-    // isAdmin: () => {},
-    // isactiveProject: () => {},
-    // openProjects: () => {},
-    // openTasks: () => {},
-    // eventAttendees: () => {},
-    // members: () => {},
+    assignedTasks: (_parent: any, _args: Users, context: Context) => {
+      return prisma.users.findUnique({
+        where: { id: _args.id },
+      }).tasks;
+    },
+    attendedEvents: (_parent: any, _args: Users, context: Context) => {
+      return prisma.users.findUnique({
+        where: { id: _args.id },
+      }).Attends;
+    },
+    isAdmin: (_parent: any, _args: Users, context: Context) => {
+      return prisma.users.findUnique({
+        where: { id: _args.id },
+        select: { role: true },
+      });
+    },
+    isactiveProject: (_parent: any, _args: Projects, context: Context) => {
+      return prisma.projects.findUnique({
+        where: { id: _args.id },
+        select: { status: true },
+      });
+    },
+    openProjects: () => {
+      return prisma.projects.findMany({ where: { status: true } });
+    },
+    openTasks: () => {
+      return prisma.tasks.findMany({ where: { status: true } });
+    },
+    eventAttendees: (_parent: any, _args: Events, context: Context) => {
+      return prisma.events.findUnique({
+        where: { id: _args.id },
+      }).Attends;
+    },
+    members: (_parent: any, _args: Clubs, context: Context) => {
+      return prisma.clubs.findUnique({ where: { id: _args.id } }).Members;
+    },
   },
   Mutation: {
     createUser: (_parent: any, _args: Users, context: Context) => {

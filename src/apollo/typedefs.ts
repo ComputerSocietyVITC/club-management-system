@@ -97,6 +97,7 @@ export const typeDefs = gql`
     getAllProjects: [Project!]
     getAllTasks: [Task!]
     getAllEvents: [Event!]
+    
   }
   type Mutation {
     createUser(
@@ -108,6 +109,8 @@ export const typeDefs = gql`
     createTask(
       description: String!
       contactNo: Int!
+      userID: Int!
+      projectId: Int!
       userid: String!
       projectid: String!
     ): Task!
