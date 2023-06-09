@@ -104,7 +104,7 @@ export const typeDefs = gql`
     openProjects: [Project]
     openTasks: [Task]
     eventAttendees(id: Event): [Attend]
-    memebrs(id: Clubs): [Members]
+    findAllMembers(id: Clubs): [Members]
   }
   type Mutation {
     createUser(

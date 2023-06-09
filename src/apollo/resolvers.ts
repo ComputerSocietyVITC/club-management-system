@@ -1,70 +1,71 @@
-import { prisma } from "@cms/server/db";
-import { Context } from "@cms/server/prisma";
+import { Context } from "@cms/components/prisma";
+
 import {
   Attends,
+  Clubs,
   Events,
   Projects,
   Tasks,
   Users,
   WorksOn,
-  Clubs,
 } from "@prisma/client";
 
 export const resolvers = {
   Query: {
     helloWorld: () => "Hello World!",
-    getAllUsers: () => {
-      return prisma.users.findMany({});
+    getAllUsers: (_parent: any, _args: Users, context: Context) => {
+      return context.prisma.users.findMany({});
     },
-    getAllProjects: () => {
-      return prisma.projects.findMany({});
+    getAllProjects: (_parent: any, _args: Users, context: Context) => {
+      return context.prisma.projects.findMany({});
     },
-    getAllEvents: () => {
-      return prisma.events.findMany({});
+    getAllEvents: (_parent: any, _args: Users, context: Context) => {
+      return context.prisma.events.findMany({});
     },
-    getAllTasks: () => {
-      return prisma.tasks.findMany({});
+    getAllTasks: (_parent: any, _args: Users, context: Context) => {
+      return context.prisma.tasks.findMany({});
     },
     assignedTasks: (_parent: any, _args: Users, context: Context) => {
-      return prisma.users.findUnique({
+      return context.prisma.users.findUnique({
         where: { id: _args.id },
       }).tasks;
     },
     attendedEvents: (_parent: any, _args: Users, context: Context) => {
-      return prisma.users.findUnique({
+      return context.prisma.users.findUnique({
         where: { id: _args.id },
       }).Attends;
     },
     isAdmin: (_parent: any, _args: Users, context: Context) => {
-      return prisma.users.findUnique({
+      return context.prisma.users.findUnique({
         where: { id: _args.id },
         select: { role: true },
       });
     },
     isActiveProject: (_parent: any, _args: Projects, context: Context) => {
-      return prisma.projects.findUnique({
+      return context.prisma.projects.findUnique({
         where: { id: _args.id },
         select: { status: true },
       });
     },
-    openProjects: () => {
-      return prisma.projects.findMany({ where: { status: true } });
+    openProjects: (_parent: any, _args: Users, context: Context) => {
+      return context.prisma.projects.findMany({ where: { status: true } });
     },
-    openTasks: () => {
-      return prisma.tasks.findMany({ where: { status: true } });
+    openTasks: (_parent: any, _args: Users, context: Context) => {
+      return context.prisma.tasks.findMany({ where: { status: true } });
     },
     eventAttendees: (_parent: any, _args: Events, context: Context) => {
-      return prisma.events.findUnique({
+      return context.prisma.events.findUnique({
         where: { id: _args.id },
       }).Attends;
     },
-    members: (_parent: any, _args: Clubs, context: Context) => {
-      return prisma.clubs.findUnique({ where: { id: _args.id } }).Members;
+    findAllMembers: (_parent: any, _args: Clubs, context: Context) => {
+      return context.prisma.clubs.findUnique({ where: { id: _args.id } })
+        .Members;
     },
   },
   Mutation: {
     createUser: (_parent: any, _args: Users, context: Context) => {
-      return prisma.users.create({
+      return context.prisma.users.create({
         data: {
           regNo: _args.regNo,
           userName: _args.userName,
@@ -74,7 +75,7 @@ export const resolvers = {
       });
     },
     createTask: (_parent: any, _args: Tasks, context: Context) => {
-      return prisma.tasks.create({
+      return context.prisma.tasks.create({
         data: {
           description: _args.description,
           status: true,
@@ -84,7 +85,7 @@ export const resolvers = {
       });
     },
     createProject: (_parent: any, _args: Projects, _context: Context) => {
-      return prisma.projects.create({
+      return _context.prisma.projects.create({
         data: {
           title: _args.title,
           description: _args.description,
@@ -97,7 +98,7 @@ export const resolvers = {
       });
     },
     createEvent: (_parent: any, _args: Events, context: Context) => {
-      return prisma.events.create({
+      return context.prisma.events.create({
         data: {
           name: _args.name,
           startsAt: new Date(_args.startsAt).toISOString(),
@@ -106,7 +107,7 @@ export const resolvers = {
       });
     },
     assignTask: (_parent: any, _args: WorksOn, context: Context) => {
-      return prisma.worksOn.create({
+      return context.prisma.worksOn.create({
         data: {
           user: { connect: { id: _args.userID } },
           task: { connect: { id: _args.taskID } },
@@ -114,7 +115,7 @@ export const resolvers = {
       });
     },
     attendEvent: (_parent: any, _args: Attends, context: Context) => {
-      return prisma.attends.create({
+      return context.prisma.attends.create({
         data: {
           user: { connect: { id: _args.userID } },
           event: { connect: { id: _args.eventID } },
@@ -122,7 +123,7 @@ export const resolvers = {
       });
     },
     updateTask: (_parent: any, _args: any, context: Context) => {
-      return prisma.tasks.update({
+      return context.prisma.tasks.update({
         where: { id: _args.taskID },
         data: {
           description: _args.description,
@@ -131,7 +132,7 @@ export const resolvers = {
       });
     },
     updateProjectLink: (_parent: any, _args: any, context: Context) => {
-      return prisma.projects.update({
+      return context.prisma.projects.update({
         where: { id: _args.projectID },
         data: {
           link: _args.link,
@@ -143,7 +144,7 @@ export const resolvers = {
       _args: Projects & { projectId: string },
       context: Context
     ) => {
-      return prisma.projects.update({
+      return context.prisma.projects.update({
         where: { id: _args.projectId },
         data: {
           description: _args.description,
@@ -155,7 +156,7 @@ export const resolvers = {
       _args: Projects & { projectId: string },
       context: Context
     ) => {
-      return prisma.projects.update({
+      return context.prisma.projects.update({
         where: { id: _args.projectId },
         data: {
           status: _args.status,
@@ -163,7 +164,7 @@ export const resolvers = {
       });
     },
     updateUserRole: (_parent: any, _args: Users, context: Context) => {
-      return prisma.users.update({
+      return context.prisma.users.update({
         where: { id: _args.id },
         data: {
           role: _args.role,
@@ -171,7 +172,7 @@ export const resolvers = {
       });
     },
     updateUserContactNo: (_parent: any, _args: Users, context: Context) => {
-      return prisma.users.update({
+      return context.prisma.users.update({
         where: { id: _args.id },
         data: {
           contactNo: _args.contactNo,
@@ -179,22 +180,22 @@ export const resolvers = {
       });
     },
     removeProject: (_parent: any, _args: Projects, context: Context) => {
-      return prisma.projects.delete({
+      return context.prisma.projects.delete({
         where: { id: _args.id },
       });
     },
     removeTask: (_parent: any, _args: Tasks, context: Context) => {
-      return prisma.tasks.delete({
+      return context.prisma.tasks.delete({
         where: { id: _args.id },
       });
     },
     removeEvent: (_parent: any, _args: Events, context: Context) => {
-      return prisma.events.delete({
+      return context.prisma.events.delete({
         where: { id: _args.id },
       });
     },
     removeAttendee: (_parent: any, _args: Attends, context: Context) => {
-      return prisma.attends.delete({
+      return context.prisma.attends.delete({
         where: {},
       });
     },
