@@ -2,32 +2,53 @@ import { gql } from "@apollo/client";
 
 export const typeDefs = gql`
   type User {
-    id: Int!
+    id: String!
     createdAt: DateTime!
     updatedAt: DateTime!
     regNo: String!
     userName: String!
     contactNo: Int!
     role: String
-    createdBy: User!
     assignedTasks: [Task!]!
   }
 
+  type Clubs {
+    id: String!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    name: String!
+    facultyCoordinator: String
+    email: String!
+    Projects: [Project]
+    Members: [Members]
+  }
+
   type Task {
-    id: Int!
+    id: String!
     createdAt: DateTime!
     updatedAt: DateTime!
     description: String!
     status: Boolean!
     contactNo: Int!
-    createdBy: User!
+    userId: String!
     assignedTo: Project!
+    projectId: String
+  }
+
+  input TaskInput {
+    description: String!
+    status: Boolean!
+    createdBy: String!
+    assignedTo: String!
   }
 
   type Project {
-    id: Int!
+    id: String!
     createdAt: DateTime!
     updatedAt: DateTime!
+    description: String
+    link: String
+    clubID: String
     title: String!
     status: String
     contactNo: Int!
@@ -35,16 +56,25 @@ export const typeDefs = gql`
   }
 
   type Event {
-    id: Int!
+    id: String!
     createdAt: DateTime!
     updatedAt: DateTime!
     name: String!
     startsAt: DateTime!
     venue: String!
-    attendees: [User!]!
+    attendees: [User!]
+  }
+
+  type Members {
+    id: Int!
+    userId: String!
+    clubId: String!
+    createdAt: DateTime!
+    updatedAt: DateTime!
   }
 
   type WorkOn {
+    id: Int!
     user: User!
     task: Task!
     createdAt: DateTime!
@@ -52,6 +82,7 @@ export const typeDefs = gql`
   }
 
   type Attend {
+    id: Int!
     user: User!
     event: Event!
     createdAt: DateTime!
@@ -61,16 +92,12 @@ export const typeDefs = gql`
   scalar DateTime
 
   type Query {
-    users: [User!]!
-    user(id: Int!): User
-    tasks: [Task!]!
-    task(id: Int!): Task
-    projects: [Project!]!
-    project(id: Int!): Project
-    events: [Event!]!
-    event(id: Int!): Event
+    helloWorld: String!
+    getAllUsers: [User!]
+    getAllProjects: [Project!]
+    getAllTasks: [Task!]
+    getAllEvents: [Event!]
   }
-
   type Mutation {
     createUser(
       regNo: String!
@@ -81,8 +108,8 @@ export const typeDefs = gql`
     createTask(
       description: String!
       contactNo: Int!
-      userID: Int!
-      projectId: Int!
+      userid: String!
+      projectid: String!
     ): Task!
     createProject(
       title: String!
@@ -91,16 +118,17 @@ export const typeDefs = gql`
       role: String
     ): Project!
     createEvent(name: String!, startsAt: DateTime!, venue: String!): Event!
-    assignTaskToUser(userID: Int!, taskID: Int!): WorkOn!
-    attendEvent(userID: Int!, eventID: Int!): Attend!
-    updateTask(): Task!
-    updateProjectLink(projectID: Int!, link: String!): Project!
-    updateProjectDescription(projectID: Int!, description: String!): Project!
-    updateProjectStatus(projectID: Int!, status: String!): Project!
-    updateUserRole(userID: Int!, role: String!): User!
-    updateUserContactNo(): User!
-    removeProject(projectID: Int!): Project!
-    removeTask(taskID: Int!): Task!
-    removeAttendee(userID: Int!, eventID: Int!): Attend!
+    assignTask(userid: String!, taskid: String!): WorkOn!
+    attendEvent(userid: String!, eventid: String!): Attend!
+    updateTask(params: TaskInput): Task!
+    updateProjectLink(projectid: String!, link: String!): Project!
+    updateProjectDescription(projectid: String!, description: String): Project!
+    updateProjectStatus(projectid: String!, status: String): Project!
+    updateUserRole(userid: String!, role: String): User!
+    updateUserContactNo(userid: String!, contactNo: Int): User!
+    removeProject(projectid: String!): Project
+    removeAttendee(attendeeid: String!): Attend!
+    removeEvent(eventid: String!): Event
+    removeTask(taskId: String): Task
   }
 `;

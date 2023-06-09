@@ -8,18 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Clubs {
-  id                 String     @id @default(uuid())
-  createdAt          DateTime   @default(now())
-  updatedAt          DateTime   @updatedAt
-  name               String     @unique
-  president          String
-  facultyCoordinator String
-  email              String     @unique
-  Projects           Projects[]
-  Members            Members[]
-}
-
 model Users {
   id        String    @id @default(uuid())
   createdAt DateTime  @default(now())
@@ -32,6 +20,18 @@ model Users {
   WorksOn   WorksOn[]
   Attends   Attends[]
   Members   Members[]
+}
+
+model Clubs {
+  id                 String     @id @default(uuid())
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  name               String     @unique
+  president          String
+  facultyCoordinator String
+  email              String     @unique
+  Projects           Projects[]
+  Members            Members[]
 }
 
 model Tasks {
@@ -73,34 +73,31 @@ model Events {
 }
 
 model WorksOn {
+  id        Int      @unique @default(autoincrement())
   user      Users    @relation(fields: [userID], references: [id])
   userID    String
   task      Tasks    @relation(fields: [taskID], references: [id])
   taskID    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@id([userID, taskID])
 }
 
 model Attends {
+  id        Int      @unique @default(autoincrement())
   user      Users    @relation(fields: [userID], references: [id])
   userID    String
   event     Events   @relation(fields: [eventID], references: [id])
   eventID   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@id([eventID, userID])
 }
 
 model Members {
+  id        Int      @unique @default(autoincrement())
   user      Users    @relation(fields: [userID], references: [id])
   userID    String
   club      Clubs    @relation(fields: [clubID], references: [id])
   clubID    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@id([clubID, userID])
 }
