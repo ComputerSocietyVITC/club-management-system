@@ -97,7 +97,14 @@ export const typeDefs = gql`
     getAllProjects: [Project!]
     getAllTasks: [Task!]
     getAllEvents: [Event!]
-    
+    assignedTasks(id: String!): [Task]
+    attendedEvents(id: String!): [Event]
+    isAdmin(id: String!): User
+    isActiveProject(id: String!): Project
+    openProjects: [Project]
+    openTasks: [Task]
+    eventAttendees(id: Event): [Attend]
+    memebrs(id: Clubs): [Members]
   }
   type Mutation {
     createUser(

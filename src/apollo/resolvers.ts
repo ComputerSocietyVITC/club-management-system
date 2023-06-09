@@ -41,7 +41,7 @@ export const resolvers = {
         select: { role: true },
       });
     },
-    isactiveProject: (_parent: any, _args: Projects, context: Context) => {
+    isActiveProject: (_parent: any, _args: Projects, context: Context) => {
       return prisma.projects.findUnique({
         where: { id: _args.id },
         select: { status: true },
