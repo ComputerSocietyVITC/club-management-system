@@ -3,10 +3,10 @@
 @tailwind utilities;
 
 :root {
-  --primaryColor: #141e46;
+  --primaryColor: #00251e;
   --secondaryColor: #41b06e;
   --tertiaryColor: #8decb4;
-  --quaternaryColor: #fff5e0;
+  --quaternaryColor: #ffffff;
 }
 
 @layer utilities {
