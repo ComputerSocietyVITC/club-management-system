@@ -1,44 +1,43 @@
 "use client";
 
+import { setUserInLocalStorage } from "@/lib/userLocalStorage";
 import { supabase } from "@/server/supabase";
+import { defaultUser } from "@/types/user";
 import { useState } from "react";
 
 export default function Signup() {
-  const [name, setName] = useState("");
-  const [registrationNumber, setRegistrationNumber] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [department, setDepartment] = useState("");
-  const [role, setRole] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [github, setGithub] = useState("");
+  /*
+   * BACKEND
+   */
+
+  const [user, setUser] = useState(defaultUser);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const { data, error } = await supabase.auth.signUp({
-        email: email,
-        password: password,
+        email: user.email,
+        password: user.password,
       });
 
       if (error) throw error;
 
       const populateUserTable = await supabase.from("User").insert([
         {
-          registration_number: registrationNumber,
-          name: name,
-          phone_number: phoneNumber,
-          department: department,
-          role: role,
-          email: email,
-          github: github,
-          admin: false,
+          registration_number: user.registration_number,
+          name: user.name,
+          phone_number: user.phone_number,
+          department: user.department,
+          role: user.role,
+          email: user.email,
+          github: user.github,
+          admin: user.admin,
         },
       ]);
 
-      console.log(populateUserTable);
-
       if (populateUserTable.error) throw populateUserTable.error;
+
+      setUserInLocalStorage({ ...user, password: "" });
 
       alert("User created successfully");
     } catch (error) {
@@ -46,6 +45,10 @@ export default function Signup() {
       alert("Error signing up");
     }
   };
+
+  /*
+   * FRONTEND
+   */
 
   // TODO: Actually make the login form look good
   return (
@@ -55,8 +58,8 @@ export default function Signup() {
         <input
           name="email"
           type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={user.email}
+          onChange={(e) => setUser({ ...user, email: e.target.value })}
           className="text-black"
         />
       </div>
@@ -65,8 +68,8 @@ export default function Signup() {
         <input
           name="password"
           type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={user.password}
+          onChange={(e) => setUser({ ...user, password: e.target.value })}
           className="text-black"
         />
       </div>
@@ -75,8 +78,8 @@ export default function Signup() {
         <input
           name="name"
           type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={user.name}
+          onChange={(e) => setUser({ ...user, name: e.target.value })}
           className="text-black"
         />
       </div>
@@ -85,8 +88,10 @@ export default function Signup() {
         <input
           name="registrationNumber"
           type="text"
-          value={registrationNumber}
-          onChange={(e) => setRegistrationNumber(e.target.value)}
+          value={user.registration_number}
+          onChange={(e) =>
+            setUser({ ...user, registration_number: e.target.value })
+          }
           className="text-black"
         />
       </div>
@@ -95,8 +100,8 @@ export default function Signup() {
         <input
           name="department"
           type="text"
-          value={department}
-          onChange={(e) => setDepartment(e.target.value)}
+          value={user.department}
+          onChange={(e) => setUser({ ...user, department: e.target.value })}
           className="text-black"
         />
       </div>
@@ -105,8 +110,8 @@ export default function Signup() {
         <input
           name="phoneNumber"
           type="number"
-          value={phoneNumber}
-          onChange={(e) => setPhoneNumber(e.target.value)}
+          value={user.phone_number}
+          onChange={(e) => setUser({ ...user, phone_number: e.target.value })}
           className="text-black"
         />
       </div>
@@ -115,8 +120,8 @@ export default function Signup() {
         <input
           name="role"
           type="text"
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
+          value={user.role}
+          onChange={(e) => setUser({ ...user, role: e.target.value })}
           className="text-black"
         />
       </div>
@@ -125,8 +130,8 @@ export default function Signup() {
         <input
           name="github"
           type="url"
-          value={github}
-          onChange={(e) => setGithub(e.target.value)}
+          value={user.github}
+          onChange={(e) => setUser({ ...user, github: e.target.value })}
           className="text-black"
         />
       </div>

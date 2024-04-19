@@ -1,21 +1,38 @@
 "use client";
 
 import { supabase } from "@/server/supabase";
+
+import { defaultUser } from "@/types/user";
 import { useState } from "react";
 
+import { setUserInLocalStorage } from "@/lib/userLocalStorage";
+
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  /*
+   * BACKEND
+   */
+
+  const [user, setUser] = useState(defaultUser);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password,
+        email: user.email,
+        password: user.password,
       });
 
       if (error) throw error;
+
+      const populateUser = await supabase
+        .from("User")
+        .select()
+        .eq("email", user.email)
+        .single();
+
+      if (populateUser.error) throw populateUser.error;
+
+      setUserInLocalStorage(populateUser.data);
 
       alert("User Logged in successfully");
     } catch (error) {
@@ -23,6 +40,10 @@ export default function Login() {
       alert("Error Logging in up");
     }
   };
+
+  /*
+   * FRONTEND
+   */
 
   // TODO: Actually make the login form look good
   return (
@@ -32,8 +53,8 @@ export default function Login() {
         <input
           name="email"
           type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={user.email}
+          onChange={(e) => setUser({ ...user, email: e.target.value })}
           className="text-black"
         />
       </div>
@@ -42,8 +63,8 @@ export default function Login() {
         <input
           name="password"
           type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={user.password}
+          onChange={(e) => setUser({ ...user, password: e.target.value })}
           className="text-black"
         />
       </div>
