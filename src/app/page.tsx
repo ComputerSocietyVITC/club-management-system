@@ -1,6 +1,7 @@
-import Image from "next/image";
+"use client";
+
 import Post from "@/components/posts";
-import Header from "@/components/header";
+
 export default function Home() {
   return (
     <section className="flex justify-center bg-transparent h-screen overflow-auto grow ">
