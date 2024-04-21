@@ -1,15 +1,17 @@
 import React from "react";
 import Link from "next/link";
 import styles from "@/styles/dashboard.module.css";
+import Image from "next/image";
 
 function Dashboard() {
   return (
     <>
       <div className={styles.container}>
-        <div className={[styles.dashItems, styles.item1].join(" ")}>
-          <h1>Dashboard</h1>
+        <div className="flex gap-4 w-full items-center p-4">
+          <Image src="/ieee-logo.webp" alt="logo" width={50} height={50} />
+          <h1 className="text-white text-xl">Dashboard</h1>
         </div>
-        <Link className={styles.links} href="/home">
+        <Link className={styles.links} href="/">
           <div className={styles.dashItems}>
             <h1>Home</h1>
           </div>

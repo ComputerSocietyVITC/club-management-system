@@ -41,11 +41,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`bg-gradient-to-br from-[#01372f] to-black ${inter.className}`}
+        className={`bg-gradient-to-br from-[#01372f] to-black ${inter.className} min-h-screen flex flex-col`}
       >
         <Header />
         <Dashboard />
-        {children}
+        <div className="ml-[300px]">{children}</div>
       </body>
     </html>
   );

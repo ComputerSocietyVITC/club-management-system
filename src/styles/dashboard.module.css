@@ -5,9 +5,8 @@
   justify-content: flex-start;
   height: 100vh;
   width: 300px;
-  margin-top: 74px;
-  border-right: 1px solid #ccc;
   position: fixed;
+  border-right: 1px solid #ccc;
   background-color: #181a1b;
 }
 
@@ -35,6 +34,7 @@
 
 .item1 {
   border-bottom: 1px solid #ccc;
+  color: #ccc;
 }
 
 @media screen and (max-width: 768px) {
