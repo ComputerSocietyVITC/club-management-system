@@ -7,7 +7,6 @@ import {
   faArrowUpRightFromSquare,
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
-import { PrismaClient } from "@prisma/client";
 
 interface Project {
   title: string;
@@ -88,7 +87,6 @@ const Projects: React.FC = () => {
       }));
     }
   };
-  const prisma = new PrismaClient();
   const [users, setUsers] = useState<
     {
       registration_number: string;
