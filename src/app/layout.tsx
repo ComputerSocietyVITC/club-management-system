@@ -9,7 +9,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { supabase } from "@/server/supabase";
 
 import Header from "@/components/header";
-import Sidebar from "@/components/sidebar";
+import Dashboard from "@/components/dashboard";
 import { setUserInLocalStorage } from "@/lib/userLocalStorage";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -41,15 +41,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`bg-gradient-to-br from-[#013735] to-black h-screen ${inter.className} overflow-hidden`}
+        className={`bg-gradient-to-br from-[#01372f] to-black ${inter.className} min-h-screen flex flex-col`}
       >
         <Header />
-        <section className="flex">
-          <Sidebar />
-          <section className="flex flex-grow mt-20 h-screen">
-            {children}
-          </section>
-        </section>
+        <Dashboard />
+        <div className="ml-[300px]">{children}</div>
       </body>
     </html>
   );

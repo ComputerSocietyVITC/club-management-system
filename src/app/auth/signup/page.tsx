@@ -52,7 +52,10 @@ export default function Signup() {
 
   // TODO: Actually make the login form look good
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col text-white gap-4">
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col text-white gap-4 mt-10"
+    >
       <div className="flex gap-2">
         <label htmlFor="email">email</label>
         <input
