@@ -1,7 +1,7 @@
-import Image from "next/image";
+"use client";
+
+// import Post from "@/components/posts";
 
 export default function Home() {
-  return (
-    <section className="min-h-[95vh]"></section>
-  );
+  return <section className="min-h-[95vh]">hello</section>;
 }
