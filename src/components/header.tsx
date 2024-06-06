@@ -33,7 +33,7 @@ const Header = () => {
               quality={100}
               src="/comsoclogo.png"
               alt="IEEECS logo"
-              className="rounded-2xl"
+              className="rounded-2xl shadow-all-2xl  shadow-[#b1f8e6]"
             />
           )}
         </>
