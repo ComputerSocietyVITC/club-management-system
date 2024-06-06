@@ -10,7 +10,7 @@ export default function Home() {
 
       <section className="h-[2000px] text-6xl text-center text-white flex items-center justify-center">
         <section>
-          Hello <section>SAM SHERVIN</section>
+          Hello <section>IEEE Computer Society</section>
         </section>
       </section>
     </>
