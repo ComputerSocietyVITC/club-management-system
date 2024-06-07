@@ -26,7 +26,7 @@ const Header = () => {
               )}
             </button>
           </Link>
-          {idx === 1 && (
+          {idx === navItems.length / 2 - 1 && (
             <Image
               height={50}
               width={50}

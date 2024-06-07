@@ -1,3 +1,5 @@
+import { signOut } from "next-auth/react";
+
 const navItems = [
   {
     name: "Home",
@@ -15,6 +17,13 @@ const navItems = [
     name: "Leaderboard",
     link: "/leaderboard",
   },
+  {
+    name: "Admin",
+    link: "/admin",
+  },
+  {
+    name: "Logout",
+    link: "/logout",
+  },
 ];
-
 export default navItems;

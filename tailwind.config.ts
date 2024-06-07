@@ -48,7 +48,7 @@ const config: Config = {
           "0 0 15px -3px rgba(0, 0, 0, 0.1), 0 0 6px -2px rgba(0, 0, 0, 0.05)",
         "all-xl":
           "0 0 25px -5px rgba(0, 0, 0, 0.1), 0 0 10px -5px rgba(0, 0, 0, 0.04)",
-        "all-2xl": "0 0 50px -12px rgba(0, 0, 0, 0.25)",
+        "all-2xl": "0 0 50px -12px rgba(0, 0, 0, 0.9)",
         "all-3xl": "0 0 60px -15px rgba(0, 0, 0, 0.3)",
       },
       colors: {
