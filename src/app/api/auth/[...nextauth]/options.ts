@@ -11,5 +11,17 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
   ],
+  callbacks: {
+    async signIn({ user }) {
+      const existingUser = await prisma.member.findUnique({
+        where: { email: user.email || "" },
+      });
+      if (existingUser) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+  },
   secret: process.env.NEXTAUTH_SECRET,
 };

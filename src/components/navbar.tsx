@@ -1,4 +1,3 @@
-"use client";
 import React, { useState } from "react";
 import {
   motion,
@@ -50,7 +49,7 @@ export const FloatingNav = ({ className }: { className?: string }) => {
           duration: 0.5,
         }}
         className={cn(
-          "flex max-w-fit fixed inset-x-0 mx-auto border border-transparent dark:border-white/[0.2] rounded-full backdrop-blur-lg z-[5000] px-6 py-2 items-center",
+          "flex max-w-fit fixed inset-x-0 mx-auto border border-transparent dark:border-white/[0.2] bg-[#9495aa11] rounded-full backdrop-blur-lg z-[5000] px-6 py-2 items-center",
           className
         )}
       >
