@@ -27,14 +27,16 @@ const Header = () => {
             </button>
           </Link>
           {idx === navItems.length / 2 - 1 && (
-            <Image
-              height={50}
-              width={50}
-              quality={100}
-              src="/comsoclogo.png"
-              alt="IEEECS logo"
-              className="rounded-2xl shadow-all-2xl  shadow-[#b1f8e6]"
-            />
+            <Link href="https://beta.ieeecsvitc.com">
+              <Image
+                height={50}
+                width={50}
+                quality={100}
+                src="/comsoclogo.png"
+                alt="IEEECS logo"
+                className="rounded-2xl shadow-all-2xl  shadow-[#b1f8e6]"
+              />
+            </Link>
           )}
         </>
       ))}
