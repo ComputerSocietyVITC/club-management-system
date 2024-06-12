@@ -2,11 +2,13 @@
 
 import "@/styles/globals.css";
 import { Montserrat } from "next/font/google";
-import { ReactNode } from "react";
-const montserrat = Montserrat({ subsets: ["latin"] });
-
+import { ReactNode, useEffect, useState } from "react";
 import { SessionProvider, useSession } from "next-auth/react";
 import Login from "@/components/log";
+import Header from "@/components/header";
+import { FloatingNav } from "@/components/navbar";
+
+const montserrat = Montserrat({ subsets: ["latin"] });
 
 function SessionCheck({ children }: { children: ReactNode }) {
   const { status } = useSession();
@@ -15,7 +17,11 @@ function SessionCheck({ children }: { children: ReactNode }) {
   ) : status === "loading" ? (
     <Login choice="loading" />
   ) : (
-    <>{children}</>
+    <>
+      <Header />
+      <FloatingNav />
+      {children}
+    </>
   );
 }
 
