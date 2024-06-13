@@ -27,7 +27,7 @@ const GeneralModal: React.FC<GeneralModalProps> = ({
           <button
             className={clsx(
               "border border-t-white/[0.2] border-b-white/[0.5] border-l-white/[0.2]",
-              "border-r-white/[0.2] rounded-3xl bg-gradient-to-r from-transparent via-[#07142d9c] hover:via-[#07242d9c] from-5% to-95% to-transparent bg-opacity-10 p-4 w-full h-full backdrop-blur-3xl",
+              "border-r-white/[0.2] transition ease-in-out duration-500 rounded-3xl bg-gradient-to-b from-black via-[#07142d9c] hover:via-[#07232d8e] from-5% to-95% to-black p-4 w-full h-full",
               className
             )}
           >
