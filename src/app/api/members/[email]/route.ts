@@ -4,7 +4,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export async function DELETE(
-  res: NextResponse,
+  req: NextRequest,
   { params }: { params: { email: string } }
 ) {
   await prisma.member.delete({
