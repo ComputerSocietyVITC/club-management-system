@@ -68,8 +68,9 @@ model VerificationToken {
 
 model Member {
   name          String?
-  discordid     String
+  discordid     String?
   email         String    @id
+  githubid      String?
   role          Role      @relation(fields: [roleId], references: [id])
   roleId        Int
   assignedTasks Task[]    @relation("AssignedTasks")
