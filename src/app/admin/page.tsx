@@ -2,12 +2,13 @@
 
 import GeneralModal from "@/components/modals/generalmodal";
 
+const titleClass = "text-6xl text-center col-span-3 font-medium";
 const AdminPage = () => {
   return (
     <>
       <section className="flex-row justify-center text-white">
-        <section className="grid grid-cols-3 min-h-[calc(100vw-55vw)] mx-12 p-4 grid-flow-row gap-4 border items-center border-t-white/[0.2] border-b-white/[0.5] border-l-white/[0.2] border-r-white/[0.2] rounded-3xl bg-white bg-opacity-[5px] my-36">
-          <section className="text-6xl text-center col-span-3"> TOOLS </section>
+        <section className="bg-[#000000] grid grid-cols-3 min-h-[calc(100vw-55vw)] mx-12 p-4 grid-flow-row gap-4 border items-center border-t-white/[0.2] border-b-white/[0.5] border-l-white/[0.2] border-r-white/[0.2] bg-opacity-25 rounded-3xl my-36">
+          <section className={titleClass}> TOOLS </section>
           <GeneralModal
             content="Milestone Manager"
             isButton={true} // Add achievements to members
@@ -46,8 +47,8 @@ const AdminPage = () => {
             redirectTo="/tools/mailingSystem"
           />
         </section>
-        <section className="grid grid-cols-3 min-h-[calc(100vw-55vw)] mx-12 p-4 grid-flow-row gap-4 border items-center border-t-white/[0.2] border-b-white/[0.5] border-l-white/[0.2] border-r-white/[0.2] rounded-3xl bg-white bg-opacity-[5px] my-36">
-          <section className="text-6xl text-center col-span-3">Events</section>
+        <section className="grid grid-cols-3 min-h-[calc(100vw-55vw)] mx-12 p-4 grid-flow-row gap-4 border items-center border-t-white/[0.2] border-b-white/[0.5] border-l-white/[0.2] border-r-white/[0.2] rounded-3xl bg-black bg-opacity-25 my-36">
+          <section className={titleClass}>EVENTS</section>
           <GeneralModal
             content="Paradox 24'"
             isButton={true}
@@ -55,10 +56,8 @@ const AdminPage = () => {
             redirectTo="/events/paradox24"
           />
         </section>
-        <section className="grid grid-cols-3 min-h-[calc(100vw-55vw)] mx-12 p-4 grid-flow-row gap-4 border items-center border-t-white/[0.2] border-b-white/[0.5] border-l-white/[0.2] border-r-white/[0.2] rounded-3xl bg-white bg-opacity-[5px] my-36">
-          <section className="text-6xl text-center col-span-3">
-            Projects
-          </section>
+        <section className="grid grid-cols-3 min-h-[calc(100vw-55vw)] mx-12 p-4 grid-flow-row gap-4 border items-center border-t-white/[0.2] border-b-white/[0.5] border-l-white/[0.2] border-r-white/[0.2] rounded-3xl bg-black bg-opacity-25 my-36">
+          <section className={titleClass}>PROJECTS</section>
           <GeneralModal
             content="Club Main Site"
             isButton={true} // use API requests to get data and display
