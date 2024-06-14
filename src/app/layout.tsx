@@ -18,9 +18,11 @@ function SessionCheck({ children }: { children: ReactNode }) {
     <Login choice="loading" />
   ) : (
     <>
-      <Header />
-      <FloatingNav />
-      {children}
+      <SessionProvider>
+        <Header />
+        <FloatingNav />
+        {children}
+      </SessionProvider>
     </>
   );
 }
