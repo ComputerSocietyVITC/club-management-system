@@ -1,0 +1,103 @@
+"use server";
+
+import { NextRequest, NextResponse } from "next/server";
+import { session } from "../../../lib/auth";
+const nodemailer = require("nodemailer");
+import { parse } from "csv-parse/sync";
+
+// let responseJson: any[] = [];
+//
+// async function getMembers() {
+//   const response = await fetch("/api/members", { method: "GET" });
+//   responseJson = await response.json();
+//
+//   const yearRegex = /\d{4}/;
+//   responseJson.forEach((member: any) => {
+//     const match = member.email.match(yearRegex);
+//
+//     if (match) {
+//       member.year = match[0];
+//     } else {
+//       member.year = null;
+//     }
+//   });
+// }
+// getMembers();
+
+export async function POST(req: NextRequest, res: NextResponse) {
+  const isSession = await session(req, res);
+
+  if (!isSession) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  const formData = await req.formData();
+  const emailType = formData.get("emailType") as string;
+  const subject = formData.get("subject") as string;
+  const message = formData.get("message") as string;
+
+  let recipients: string[] = [];
+
+  if (emailType === "custom") {
+    const csvFile = formData.get("csvFile") as File;
+    if (csvFile) {
+      const csvText = await csvFile.text();
+      const records = parse(csvText, { columns: true });
+      recipients = records.map((record: any) => record.email);
+    }
+  } else if (emailType === "allClubMembers") {
+    recipients = await getAllClubMembers();
+  } else if (emailType === "specificMembers") {
+    const department = formData.get("department") as string;
+    const year = formData.get("year") as string;
+    recipients = await getSpecificMembers(department, year);
+  }
+
+  console.log("Recipients: %s", recipients.join(", "), subject, message);
+
+  const transporter = nodemailer.createTransport({
+    host: "localhost",
+    port: 2525,
+    secure: false,
+    auth: {
+      user: "username",
+      pass: "password",
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
+
+  for (const recipient of recipients) {
+    try {
+      await transporter.sendMail({
+        from: '"Sender Name" <kk61468@gmail.com>',
+        to: recipient,
+        subject: subject,
+        html: `<h1>IEEE CMS</h1><b>${message}</b>`,
+      });
+      console.log("Message sent to: %s", recipient);
+    } catch (error) {
+      console.log("Error sending email to %s: %s", recipient, error.message);
+    }
+  }
+
+  return NextResponse.json({ message: "Emails sent successfully" });
+}
+
+async function getAllClubMembers(): Promise<string[]> {
+  return ["karan.kumar2023@vitstudent.ac.in"];
+  // return responseJson.map((member: any) => member.email);
+}
+
+async function getSpecificMembers(
+  department: string,
+  year: string,
+): Promise<string[]> {
+  // const data = responseJson.filter(
+  //   (member: any) => member.department === department && member.year === year,
+  // );
+  // return data.map((member: any) => member.email);
+  //
+  return ["karan.kumar2023@vitstudent.ac.in"];
+}

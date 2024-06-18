@@ -3,6 +3,7 @@
 import Header from "@/components/header";
 import { useSession } from "next-auth/react";
 import { useState, ChangeEvent, FormEvent } from "react";
+import axios from "axios";
 
 type SessionData = {
   user: {
@@ -12,13 +13,19 @@ type SessionData = {
 
 type EmailType = "custom" | "allClubMembers" | "specificMembers";
 
-export default function Home() {
+export default function MailingSystem() {
   const { data: session } = useSession<SessionData>();
-  const [data, setData] = useState<{ name: string }>({ name: "" });
   const [emailType, setEmailType] = useState<EmailType>("custom");
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [subject, setSubject] = useState<string>("");
   const [message, setMessage] = useState<string>("");
+  const [criteria, setCriteria] = useState<{
+    department: string;
+    year: string;
+  }>({
+    department: "",
+    year: "",
+  });
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -26,13 +33,39 @@ export default function Home() {
     }
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    // Implement your email sending logic here
+
+    const formData = new FormData();
+    formData.append("emailType", emailType);
+    formData.append("subject", subject);
+    formData.append("message", message);
+
+    if (emailType === "custom" && csvFile) {
+      formData.append("csvFile", csvFile);
+    }
+
+    if (emailType === "specificMembers") {
+      formData.append("department", criteria.department);
+      formData.append("year", criteria.year);
+    }
+
+    try {
+      const response = await axios.post("/api/mail", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      console.log("Email sent successfully:", response.data);
+    } catch (error) {
+      console.error("Error sending email:", error);
+    }
   };
 
   const userName = session?.user?.name || "";
   const userYear = userName.split(" ").pop()?.slice(-4) || "";
+  console.log("session:", session?.user);
 
   return (
     <>
@@ -72,11 +105,19 @@ export default function Home() {
                 <input
                   type="text"
                   placeholder="Department (e.g., Technical)"
+                  value={criteria.department}
+                  onChange={(e) =>
+                    setCriteria({ ...criteria, department: e.target.value })
+                  }
                   className="w-full p-2 mb-2 border border-gray-600 rounded bg-gray-700 text-white"
                 />
                 <input
                   type="text"
                   placeholder={`Year (e.g., ${userYear})`}
+                  value={criteria.year}
+                  onChange={(e) =>
+                    setCriteria({ ...criteria, year: e.target.value })
+                  }
                   className="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white"
                 />
               </div>
