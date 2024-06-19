@@ -5,24 +5,24 @@ import { session } from "../../../lib/auth";
 const nodemailer = require("nodemailer");
 import { parse } from "csv-parse/sync";
 
-// let responseJson: any[] = [];
-//
-// async function getMembers() {
-//   const response = await fetch("/api/members", { method: "GET" });
-//   responseJson = await response.json();
-//
-//   const yearRegex = /\d{4}/;
-//   responseJson.forEach((member: any) => {
-//     const match = member.email.match(yearRegex);
-//
-//     if (match) {
-//       member.year = match[0];
-//     } else {
-//       member.year = null;
-//     }
-//   });
-// }
-// getMembers();
+let responseJson: any[] = [];
+
+async function getMembers() {
+  const response = await fetch("/api/members", { method: "GET" });
+  responseJson = await response.json();
+
+  const yearRegex = /\d{4}/;
+  responseJson.forEach((member: any) => {
+    const match = member.email.match(yearRegex);
+
+    if (match) {
+      member.year = match[0];
+    } else {
+      member.year = null;
+    }
+  });
+}
+getMembers();
 
 export async function POST(req: NextRequest, res: NextResponse) {
   const isSession = await session(req, res);
@@ -68,36 +68,40 @@ export async function POST(req: NextRequest, res: NextResponse) {
     },
   });
 
-  for (const recipient of recipients) {
-    try {
-      await transporter.sendMail({
+  // Create an array of promises for sending emails
+  const emailPromises = recipients.map((recipient) => {
+    return transporter
+      .sendMail({
         from: '"Sender Name" <kk61468@gmail.com>',
         to: recipient,
         subject: subject,
         html: `<h1>IEEE CMS</h1><b>${message}</b>`,
+      })
+      .then((info) => {
+        console.log("Message sent to: %s", recipient);
+        console.log("Message sent: %s", info.messageId);
+      })
+      .catch((error) => {
+        console.log("Error sending email to %s: %s", recipient, error.message);
       });
-      console.log("Message sent to: %s", recipient);
-    } catch (error) {
-      console.log("Error sending email to %s: %s", recipient, error.message);
-    }
-  }
+  });
+
+  // Wait for all email promises to complete
+  await Promise.all(emailPromises);
 
   return NextResponse.json({ message: "Emails sent successfully" });
 }
 
 async function getAllClubMembers(): Promise<string[]> {
-  return ["karan.kumar2023@vitstudent.ac.in"];
-  // return responseJson.map((member: any) => member.email);
+  return responseJson.map((member: any) => member.email);
 }
 
 async function getSpecificMembers(
   department: string,
   year: string,
 ): Promise<string[]> {
-  // const data = responseJson.filter(
-  //   (member: any) => member.department === department && member.year === year,
-  // );
-  // return data.map((member: any) => member.email);
-  //
-  return ["karan.kumar2023@vitstudent.ac.in"];
+  const data = responseJson.filter(
+    (member: any) => member.department === department && member.year === year,
+  );
+  return data.map((member: any) => member.email);
 }

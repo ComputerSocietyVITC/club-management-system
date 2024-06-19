@@ -19,12 +19,37 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
   let recipients: string[] = [];
 
+  console.log("Email Type: %s", emailType);
+
   if (emailType === "custom") {
     const csvFile = formData.get("csvFile") as File;
+    console.log("CSV FILE: ", csvFile);
     if (csvFile) {
       const csvText = await csvFile.text();
-      const records = parse(csvText, { columns: true });
-      recipients = records.map((record: any) => record.email);
+      console.log("CSV Text: ", csvText);
+
+      // checking csv header
+      const firstLine = csvText.split("\n")[0];
+      let records;
+
+      if (firstLine.includes("@")) {
+        // if no header
+        records = parse(csvText, {
+          trim: true,
+          skip_empty_lines: true,
+        });
+        recipients = records.flat();
+      } else {
+        records = parse(csvText, {
+          columns: true,
+          trim: true,
+          skip_empty_lines: true,
+        });
+        recipients = records.map((record: any) => record.email);
+      }
+
+      console.log("Parsed Records: ", records);
+      console.log("Recipients: %s", recipients.join(", "));
     }
   } else if (emailType === "allClubMembers") {
     recipients = await getAllClubMembers();
@@ -34,7 +59,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
     recipients = await getSpecificMembers(department, year);
   }
 
-  console.log("Recipients: %s", recipients.join(", "), subject, message);
+  console.log("Final Recipients: %s", recipients.join(", "), subject, message);
 
   const transporter = nodemailer.createTransport({
     host: "localhost",
@@ -74,18 +99,12 @@ export async function POST(req: NextRequest, res: NextResponse) {
 }
 
 async function getAllClubMembers(): Promise<string[]> {
-  return [
-    "karan.kumar2023@vitstudent.ac.in",
-    "samshervin.s2022@vitstudent.ac.in",
-  ];
+  return ["karan.kumar2023@vitstudent.ac.in"];
 }
 
 async function getSpecificMembers(
   department: string,
   year: string,
 ): Promise<string[]> {
-  return [
-    "karan.kumar2023@vitstudent.ac.in",
-    "samshervin.s2022@vitstudent.ac.in",
-  ];
+  return ["karan.kumar2023@vitstudent.ac.in"];
 }
