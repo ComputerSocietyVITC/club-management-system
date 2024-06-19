@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { session } from "../../../lib/auth";
-const nodemailer = require("nodemailer");
+const nodemailer = require("nodemailer"); // not using es6 syntanx because linter complains
 import { parse } from "csv-parse/sync";
 
 let responseJson: any[] = [];
@@ -9,12 +9,11 @@ async function getMembers(baseUrl: string, cookie: string) {
   const response = await fetch(`${baseUrl}/api/members`, {
     method: "GET",
     headers: {
-      Cookie: cookie, // Include the session cookie in the headers
+      Cookie: cookie,
     },
   });
 
   responseJson = await response.json();
-  console.log("Response JSON: ", responseJson);
 
   const yearRegex = /\d{4}/;
   responseJson.forEach((member: any) => {
@@ -36,8 +35,16 @@ export async function POST(req: NextRequest, res: NextResponse) {
   }
 
   const baseUrl = req.nextUrl.origin;
-  const cookie = req.headers.get("cookie") || ""; // Get the session cookie
+  const cookie = req.headers.get("cookie") || "";
   await getMembers(baseUrl, cookie);
+
+  // allowing only master role members to send emails
+  const masters = responseJson.filter((member: any) => member.roleId === 1);
+  const masterEmails = masters.map((member) => member.email);
+
+  if (!masterEmails.includes(isSession?.user?.email)) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
 
   const formData = await req.formData();
   const emailType = formData.get("emailType") as string;
@@ -98,66 +105,48 @@ export async function POST(req: NextRequest, res: NextResponse) {
   console.log("Final Recipients: %s", recipients.join(", "), subject, message);
 
   const transporter = nodemailer.createTransport({
-    host: "localhost",
-    port: 2525,
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
     secure: false,
     auth: {
-      user: "username",
-      pass: "password",
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
     },
     tls: {
       rejectUnauthorized: false,
     },
   });
 
-  // Create an array of promises for sending emails
   const emailPromises = recipients.map((recipient) => {
     return transporter
       .sendMail({
         from: '"IEEE CMS" <ieeecsvitc@gmail.com>',
         to: recipient,
         subject: subject,
-        html: `<h1>IEEE CMS</h1><b>${message}</b>`,
+        html: message,
         attachments: attachments,
       })
-      .then((info) => {
+      .then((info: any) => {
         console.log("Message sent to: %s", recipient);
         console.log("Message sent: %s", info.messageId);
       })
-      .catch((error) => {
+      .catch((error: Error) => {
         console.log("Error sending email to %s: %s", recipient, error.message);
+        return NextResponse.json(
+          { message: "Error sending emails", error: error.message },
+          { status: 500 },
+        );
       });
   });
 
-  // Wait for all email promises to complete
   await Promise.all(emailPromises);
 
   return NextResponse.json({ message: "Emails sent successfully" });
 }
 
-const members = [
-  {
-    name: "Karan Kumar",
-    discordid: "",
-    email: "karan.kumar2023@vitstudent.ac.in",
-    githubid: "",
-    roleId: 1,
-    year: "2023",
-  },
-  {
-    name: "Aviral Kumar",
-    discordid: "",
-    email: "aviral.kumar2022@vitstudent.ac.in",
-    githubid: "",
-    roleId: 2,
-    year: "2022",
-  },
-];
-
 async function getAllClubMembers(): Promise<string[]> {
-  const data = members.map((member) => member.email);
-  console.log("All club members: ", data);
-  return [];
+  const data = responseJson.map((member) => member.email);
+  return data;
 }
 
 async function getSpecificMembers(
@@ -176,13 +165,10 @@ async function getSpecificMembers(
   const roleIds = roles
     .map((role) => rolesList.indexOf(role) + 1)
     .filter((roleId) => roleId > 0);
-
-  const filteredMembers = members.filter(
+  const filteredMembers = responseJson.filter(
     (member) => roleIds.includes(member.roleId) && years.includes(member.year),
   );
-
   const filteredEmails = filteredMembers.map((member) => member.email);
 
-  console.log("Filtered members: ", filteredMembers);
-  return [];
+  return filteredEmails;
 }

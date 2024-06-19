@@ -11,14 +11,14 @@ type SessionData = {
   };
 };
 
-type EmailType = "custom" | "allClubMembers" | "specificMembers";
+type EmailType = "allClubMembers" | "specificMembers" | "custom";
 
 const roles = ["Master", "OB", "Technical", "Management", "Design", "SMC"];
 const years = ["2022", "2023", "2024"];
 
 export default function MailingSystem() {
   const { data: session } = useSession<SessionData>();
-  const [emailType, setEmailType] = useState<EmailType>("custom");
+  const [emailType, setEmailType] = useState<EmailType>("allClubMembers");
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [attachments, setAttachments] = useState<File[]>([]);
   const [subject, setSubject] = useState<string>("");
@@ -32,10 +32,12 @@ export default function MailingSystem() {
   });
 
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setError(null);
+    setSuccess(false);
   }, [emailType]);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -70,11 +72,29 @@ export default function MailingSystem() {
     setCriteria({ ...criteria, years: [...criteria.years, ""] });
   };
 
+  const removeLastRoleField = () => {
+    if (criteria.roles.length > 1) {
+      setCriteria({
+        ...criteria,
+        roles: criteria.roles.slice(0, -1),
+      });
+    }
+  };
+
+  const removeLastYearField = () => {
+    if (criteria.years.length > 1) {
+      setCriteria({
+        ...criteria,
+        years: criteria.years.slice(0, -1),
+      });
+    }
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
+    setSuccess(false);
 
-    // Validation for specific members
     if (emailType === "specificMembers") {
       if (
         criteria.roles.some((role) => role === "") ||
@@ -112,16 +132,26 @@ export default function MailingSystem() {
 
       console.log("Email sent successfully:", response.data);
       setLoading(false);
-    } catch (error) {
+      setSuccess(true);
+    } catch (error: any) {
       console.error("Error sending email:", error);
-      setError("An error occurred while sending the email. Please try again.");
+      if (error.response && error.response.status === 401) {
+        setError(
+          "Unauthorized: You do not have permission to perform this action.",
+        );
+      } else if (error.response && error.response.status === 500) {
+        setError("Couldnt send email. Please try again.");
+      } else {
+        setError(
+          "An error occurred while sending the email. Please try again.",
+        );
+      }
       setLoading(false);
     }
   };
 
   const userName = session?.user?.name || "";
   const userYear = userName.split(" ").pop()?.slice(-4) || "";
-  console.log("session:", session?.user);
 
   return (
     <>
@@ -137,9 +167,9 @@ export default function MailingSystem() {
                 onChange={(e) => setEmailType(e.target.value as EmailType)}
                 className="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white"
               >
-                <option value="custom">Custom List (CSV)</option>
                 <option value="allClubMembers">All Club Members</option>
                 <option value="specificMembers">Specific Members</option>
+                <option value="custom">Custom List (CSV)</option>
               </select>
             </div>
 
@@ -149,12 +179,19 @@ export default function MailingSystem() {
                   Upload CSV {"  "}
                   <span className="text-red-400">*</span>
                 </label>
+
                 <input
                   type="file"
                   accept=".csv"
                   onChange={handleFileChange}
-                  className="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white"
                   required
+                  className="block w-full text-sm text-slate-500
+              file:mr-4 file:py-2 file:px-4
+              file:rounded-full file:border-0
+              file:text-sm
+              file:bg-gray-700 file:text-white
+              hover:file:bg-gray-700
+            "
                 />
               </div>
             )}
@@ -180,13 +217,25 @@ export default function MailingSystem() {
                       ))}
                     </select>
                     {index === criteria.roles.length - 1 && (
-                      <button
-                        type="button"
-                        onClick={addRoleField}
-                        className="ml-2 p-2 bg-blue-600 text-white rounded"
-                      >
-                        +
-                      </button>
+                      <div className="flex flex-row items-center justify-center">
+                        <button
+                          type="button"
+                          onClick={addRoleField}
+                          className="ml-2 p-2 bg-blue-600 text-white rounded"
+                        >
+                          +
+                        </button>
+
+                        {index > 0 && (
+                          <button
+                            type="button"
+                            onClick={removeLastRoleField}
+                            className="ml-2 p-2 bg-red-500 text-white rounded"
+                          >
+                            -
+                          </button>
+                        )}
+                      </div>
                     )}
                   </div>
                 ))}
@@ -206,13 +255,25 @@ export default function MailingSystem() {
                       ))}
                     </select>
                     {index === criteria.years.length - 1 && (
-                      <button
-                        type="button"
-                        onClick={addYearField}
-                        className="ml-2 p-2 bg-blue-600 text-white rounded"
-                      >
-                        +
-                      </button>
+                      <div className="flex flex-row items-center justify-center">
+                        <button
+                          type="button"
+                          onClick={addYearField}
+                          className="ml-2 p-2 bg-blue-600 text-white rounded"
+                        >
+                          +
+                        </button>
+
+                        {index > 0 && (
+                          <button
+                            type="button"
+                            onClick={removeLastYearField}
+                            className="ml-2 p-2 bg-red-500 text-white rounded"
+                          >
+                            -
+                          </button>
+                        )}
+                      </div>
                     )}
                   </div>
                 ))}
@@ -225,7 +286,13 @@ export default function MailingSystem() {
                 type="file"
                 multiple
                 onChange={handleAttachmentsChange}
-                className="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white"
+                className="block w-full text-sm text-slate-500
+              file:mr-4 file:py-2 file:px-4
+              file:rounded-full file:border-0
+              file:text-sm
+              file:bg-gray-700 file:text-white
+              hover:file:bg-gray-700
+            "
               />
             </div>
 
@@ -258,10 +325,13 @@ export default function MailingSystem() {
             </div>
 
             {error && <p className="text-red-400">{error}</p>}
+            {success && (
+              <p className="text-green-400">Email sent successfully!</p>
+            )}
             {loading ? (
               <button
                 type="submit"
-                className="w-full p-2 bg-blue-600 text-white rounded"
+                className="w-full p-2 bg-blue-900 text-white rounded"
                 disabled
               >
                 Sending...
