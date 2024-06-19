@@ -59,6 +59,15 @@ export async function POST(req: NextRequest, res: NextResponse) {
     recipients = await getSpecificMembers(department, year);
   }
 
+  const attachments: any[] = [];
+  const attachmentFiles = formData.getAll("attachments") as File[];
+  for (const file of attachmentFiles) {
+    attachments.push({
+      filename: file.name,
+      content: Buffer.from(await file.arrayBuffer()),
+    });
+  }
+
   console.log("Final Recipients: %s", recipients.join(", "), subject, message);
 
   const transporter = nodemailer.createTransport({
@@ -82,6 +91,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
         to: recipient,
         subject: subject,
         html: `<h1>IEEE CMS</h1><b>${message}</b>`,
+        attachments: attachments,
       })
       .then((info) => {
         console.log("Message sent to: %s", recipient);

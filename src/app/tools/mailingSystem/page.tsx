@@ -2,7 +2,7 @@
 
 import Header from "@/components/header";
 import { useSession } from "next-auth/react";
-import { useState, ChangeEvent, FormEvent } from "react";
+import { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import axios from "axios";
 
 type SessionData = {
@@ -17,6 +17,7 @@ export default function MailingSystem() {
   const { data: session } = useSession<SessionData>();
   const [emailType, setEmailType] = useState<EmailType>("custom");
   const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [attachments, setAttachments] = useState<File[]>([]);
   const [subject, setSubject] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [criteria, setCriteria] = useState<{
@@ -27,14 +28,38 @@ export default function MailingSystem() {
     year: "",
   });
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setError(null);
+  }, [emailType]);
+
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setCsvFile(e.target.files[0]);
     }
   };
 
+  const handleAttachmentsChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setAttachments(Array.from(e.target.files));
+    }
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setError(null);
+
+    // Validation for specific members
+    if (emailType === "specificMembers") {
+      if (!criteria.department || !criteria.year) {
+        setError("Please provide both department and year.");
+        return;
+      }
+    }
+
+    setLoading(true);
 
     const formData = new FormData();
     formData.append("emailType", emailType);
@@ -50,6 +75,8 @@ export default function MailingSystem() {
       formData.append("year", criteria.year);
     }
 
+    attachments.forEach((file) => formData.append("attachments", file));
+
     try {
       const response = await axios.post("/api/mail", formData, {
         headers: {
@@ -58,8 +85,11 @@ export default function MailingSystem() {
       });
 
       console.log("Email sent successfully:", response.data);
+      setLoading(false);
     } catch (error) {
       console.error("Error sending email:", error);
+      setError("An error occurred while sending the email. Please try again.");
+      setLoading(false);
     }
   };
 
@@ -89,19 +119,26 @@ export default function MailingSystem() {
 
             {emailType === "custom" && (
               <div>
-                <label className="block text-sm mb-2">Upload CSV:</label>
+                <label className="block text-sm mb-2">
+                  Upload CSV {"  "}
+                  <span className="text-red-400">*</span>
+                </label>
                 <input
                   type="file"
                   accept=".csv"
                   onChange={handleFileChange}
                   className="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white"
+                  required
                 />
               </div>
             )}
 
             {emailType === "specificMembers" && (
               <div>
-                <label className="block text-sm mb-2">Specify Criteria:</label>
+                <label className="block text-sm mb-2">
+                  Specify Criteria {"  "}
+                  <span className="text-red-400">*</span>
+                </label>
                 <input
                   type="text"
                   placeholder="Department (e.g., Technical)"
@@ -124,31 +161,60 @@ export default function MailingSystem() {
             )}
 
             <div>
-              <label className="block text-sm mb-2">Subject:</label>
+              <label className="block text-sm mb-2">Attachments</label>
               <input
-                type="text"
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
+                type="file"
+                multiple
+                onChange={handleAttachmentsChange}
                 className="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white"
               />
             </div>
 
             <div>
-              <label className="block text-sm mb-2">Message:</label>
+              <label className="block text-sm mb-2">
+                Subject {"  "}
+                <span className="text-red-400">*</span>
+              </label>
+              <input
+                type="text"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                className="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm mb-2">
+                Message {"  "}
+                <span className="text-red-400">*</span>
+              </label>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 className="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white"
                 rows={4}
+                required
               />
             </div>
 
-            <button
-              type="submit"
-              className="w-full p-2 bg-blue-600 text-white rounded"
-            >
-              Send Email
-            </button>
+            {error && <p className="text-red-400">{error}</p>}
+            {loading ? (
+              <button
+                type="submit"
+                className="w-full p-2 bg-blue-600 text-white rounded"
+                disabled
+              >
+                Sending...
+              </button>
+            ) : (
+              <button
+                type="submit"
+                className="w-full p-2 bg-blue-600 text-white rounded"
+              >
+                Send Email
+              </button>
+            )}
           </form>
         </section>
       </div>
