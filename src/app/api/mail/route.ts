@@ -1,9 +1,32 @@
-"use server";
-
 import { NextRequest, NextResponse } from "next/server";
 import { session } from "../../../lib/auth";
 const nodemailer = require("nodemailer");
 import { parse } from "csv-parse/sync";
+
+let responseJson: any[] = [];
+
+async function getMembers(baseUrl: string, cookie: string) {
+  const response = await fetch(`${baseUrl}/api/members`, {
+    method: "GET",
+    headers: {
+      Cookie: cookie, // Include the session cookie in the headers
+    },
+  });
+
+  responseJson = await response.json();
+  console.log("Response JSON: ", responseJson);
+
+  const yearRegex = /\d{4}/;
+  responseJson.forEach((member: any) => {
+    const match = member.email.match(yearRegex);
+
+    if (match) {
+      member.year = match[0];
+    } else {
+      member.year = null;
+    }
+  });
+}
 
 export async function POST(req: NextRequest, res: NextResponse) {
   const isSession = await session(req, res);
@@ -11,6 +34,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
   if (!isSession) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
+
+  const baseUrl = req.nextUrl.origin;
+  const cookie = req.headers.get("cookie") || ""; // Get the session cookie
+  await getMembers(baseUrl, cookie);
 
   const formData = await req.formData();
   const emailType = formData.get("emailType") as string;
@@ -54,9 +81,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
   } else if (emailType === "allClubMembers") {
     recipients = await getAllClubMembers();
   } else if (emailType === "specificMembers") {
-    const department = formData.get("department") as string;
-    const year = formData.get("year") as string;
-    recipients = await getSpecificMembers(department, year);
+    const roles = JSON.parse(formData.get("roles") as string);
+    const years = JSON.parse(formData.get("years") as string);
+    recipients = await getSpecificMembers(roles, years);
   }
 
   const attachments: any[] = [];
@@ -108,13 +135,54 @@ export async function POST(req: NextRequest, res: NextResponse) {
   return NextResponse.json({ message: "Emails sent successfully" });
 }
 
+const members = [
+  {
+    name: "Karan Kumar",
+    discordid: "",
+    email: "karan.kumar2023@vitstudent.ac.in",
+    githubid: "",
+    roleId: 1,
+    year: "2023",
+  },
+  {
+    name: "Aviral Kumar",
+    discordid: "",
+    email: "aviral.kumar2022@vitstudent.ac.in",
+    githubid: "",
+    roleId: 2,
+    year: "2022",
+  },
+];
+
 async function getAllClubMembers(): Promise<string[]> {
-  return ["karan.kumar2023@vitstudent.ac.in"];
+  const data = members.map((member) => member.email);
+  console.log("All club members: ", data);
+  return [];
 }
 
 async function getSpecificMembers(
-  department: string,
-  year: string,
+  roles: string[],
+  years: string[],
 ): Promise<string[]> {
-  return ["karan.kumar2023@vitstudent.ac.in"];
+  const rolesList = [
+    "Master",
+    "OB",
+    "Technical",
+    "Management",
+    "Design",
+    "SMC",
+  ];
+
+  const roleIds = roles
+    .map((role) => rolesList.indexOf(role) + 1)
+    .filter((roleId) => roleId > 0);
+
+  const filteredMembers = members.filter(
+    (member) => roleIds.includes(member.roleId) && years.includes(member.year),
+  );
+
+  const filteredEmails = filteredMembers.map((member) => member.email);
+
+  console.log("Filtered members: ", filteredMembers);
+  return [];
 }

@@ -13,6 +13,9 @@ type SessionData = {
 
 type EmailType = "custom" | "allClubMembers" | "specificMembers";
 
+const roles = ["Master", "OB", "Technical", "Management", "Design", "SMC"];
+const years = ["2022", "2023", "2024"];
+
 export default function MailingSystem() {
   const { data: session } = useSession<SessionData>();
   const [emailType, setEmailType] = useState<EmailType>("custom");
@@ -21,11 +24,11 @@ export default function MailingSystem() {
   const [subject, setSubject] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [criteria, setCriteria] = useState<{
-    department: string;
-    year: string;
+    roles: string[];
+    years: string[];
   }>({
-    department: "",
-    year: "",
+    roles: [""],
+    years: [""],
   });
 
   const [loading, setLoading] = useState(false);
@@ -47,14 +50,37 @@ export default function MailingSystem() {
     }
   };
 
+  const handleRoleChange = (index: number, value: string) => {
+    const newRoles = [...criteria.roles];
+    newRoles[index] = value;
+    setCriteria({ ...criteria, roles: newRoles });
+  };
+
+  const handleYearChange = (index: number, value: string) => {
+    const newYears = [...criteria.years];
+    newYears[index] = value;
+    setCriteria({ ...criteria, years: newYears });
+  };
+
+  const addRoleField = () => {
+    setCriteria({ ...criteria, roles: [...criteria.roles, ""] });
+  };
+
+  const addYearField = () => {
+    setCriteria({ ...criteria, years: [...criteria.years, ""] });
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
 
     // Validation for specific members
     if (emailType === "specificMembers") {
-      if (!criteria.department || !criteria.year) {
-        setError("Please provide both department and year.");
+      if (
+        criteria.roles.some((role) => role === "") ||
+        criteria.years.some((year) => year === "")
+      ) {
+        setError("Please provide all roles and years.");
         return;
       }
     }
@@ -71,8 +97,8 @@ export default function MailingSystem() {
     }
 
     if (emailType === "specificMembers") {
-      formData.append("department", criteria.department);
-      formData.append("year", criteria.year);
+      formData.append("roles", JSON.stringify(criteria.roles));
+      formData.append("years", JSON.stringify(criteria.years));
     }
 
     attachments.forEach((file) => formData.append("attachments", file));
@@ -139,24 +165,57 @@ export default function MailingSystem() {
                   Specify Criteria {"  "}
                   <span className="text-red-400">*</span>
                 </label>
-                <input
-                  type="text"
-                  placeholder="Department (e.g., Technical)"
-                  value={criteria.department}
-                  onChange={(e) =>
-                    setCriteria({ ...criteria, department: e.target.value })
-                  }
-                  className="w-full p-2 mb-2 border border-gray-600 rounded bg-gray-700 text-white"
-                />
-                <input
-                  type="text"
-                  placeholder={`Year (e.g., ${userYear})`}
-                  value={criteria.year}
-                  onChange={(e) =>
-                    setCriteria({ ...criteria, year: e.target.value })
-                  }
-                  className="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white"
-                />
+                {criteria.roles.map((role, index) => (
+                  <div key={index} className="flex items-center mb-2">
+                    <select
+                      value={role}
+                      onChange={(e) => handleRoleChange(index, e.target.value)}
+                      className="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white"
+                    >
+                      <option value="">Select Role</option>
+                      {roles.map((role) => (
+                        <option key={role} value={role}>
+                          {role}
+                        </option>
+                      ))}
+                    </select>
+                    {index === criteria.roles.length - 1 && (
+                      <button
+                        type="button"
+                        onClick={addRoleField}
+                        className="ml-2 p-2 bg-blue-600 text-white rounded"
+                      >
+                        +
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <p className="mt-8"> </p>
+                {criteria.years.map((year, index) => (
+                  <div key={index} className="flex items-center mb-2">
+                    <select
+                      value={year}
+                      onChange={(e) => handleYearChange(index, e.target.value)}
+                      className="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white"
+                    >
+                      <option value="">Select Year</option>
+                      {years.map((year) => (
+                        <option key={year} value={year}>
+                          {year}
+                        </option>
+                      ))}
+                    </select>
+                    {index === criteria.years.length - 1 && (
+                      <button
+                        type="button"
+                        onClick={addYearField}
+                        className="ml-2 p-2 bg-blue-600 text-white rounded"
+                      >
+                        +
+                      </button>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
 
