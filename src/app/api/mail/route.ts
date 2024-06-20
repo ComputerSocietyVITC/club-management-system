@@ -123,7 +123,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
   const emailPromises = recipients.map((recipient) => {
     return transporter
       .sendMail({
-        from: '"IEEE CMS" <ieeecsvitc@gmail.com>',
+        from: '"IEEECS-VITC Club Management System" <ieeecsvitc@gmail.com>',
         to: recipient,
         subject: subject,
         html: message,
