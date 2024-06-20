@@ -2,7 +2,7 @@
 
 import Header from "@/components/header";
 import { useSession } from "next-auth/react";
-import { useState, ChangeEvent, FormEvent, useEffect } from "react";
+import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import axios from "axios";
 
 type SessionData = {
@@ -11,7 +11,11 @@ type SessionData = {
   };
 };
 
-type EmailType = "allClubMembers" | "specificMembers" | "custom";
+type EmailType =
+  | "allClubMembers"
+  | "singleMember"
+  | "specificMembers"
+  | "custom";
 
 const roles = ["Master", "OB", "Technical", "Management", "Design", "SMC"];
 const years = ["2022", "2023", "2024"];
@@ -34,11 +38,27 @@ export default function MailingSystem() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [members, setMembers] = useState<{ name: string; email: string }[]>([]);
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([""]);
 
   useEffect(() => {
     setError(null);
     setSuccess(false);
   }, [emailType]);
+
+  useEffect(() => {
+    // Fetch members to populate the dropdown for single member email
+    async function fetchMembers() {
+      try {
+        const response = await axios.get("/api/members");
+        setMembers(response.data);
+      } catch (error) {
+        console.error("Error fetching members:", error);
+      }
+    }
+
+    fetchMembers();
+  }, []);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -64,12 +84,22 @@ export default function MailingSystem() {
     setCriteria({ ...criteria, years: newYears });
   };
 
+  const handleMemberChange = (index: number, value: string) => {
+    const newSelectedMembers = [...selectedMembers];
+    newSelectedMembers[index] = value;
+    setSelectedMembers(newSelectedMembers);
+  };
+
   const addRoleField = () => {
     setCriteria({ ...criteria, roles: [...criteria.roles, ""] });
   };
 
   const addYearField = () => {
     setCriteria({ ...criteria, years: [...criteria.years, ""] });
+  };
+
+  const addMemberField = () => {
+    setSelectedMembers([...selectedMembers, ""]);
   };
 
   const removeLastRoleField = () => {
@@ -87,6 +117,12 @@ export default function MailingSystem() {
         ...criteria,
         years: criteria.years.slice(0, -1),
       });
+    }
+  };
+
+  const removeLastMemberField = () => {
+    if (selectedMembers.length > 1) {
+      setSelectedMembers(selectedMembers.slice(0, -1));
     }
   };
 
@@ -121,6 +157,12 @@ export default function MailingSystem() {
       formData.append("years", JSON.stringify(criteria.years));
     }
 
+    if (emailType === "singleMember") {
+      selectedMembers.forEach((member) =>
+        formData.append("recipients", member),
+      );
+    }
+
     attachments.forEach((file) => formData.append("attachments", file));
 
     try {
@@ -140,7 +182,7 @@ export default function MailingSystem() {
           "Unauthorized: You do not have permission to perform this action.",
         );
       } else if (error.response && error.response.status === 500) {
-        setError("Couldnt send email. Please try again.");
+        setError("Couldn't send email. Please try again.");
       } else {
         setError(
           "An error occurred while sending the email. Please try again.",
@@ -168,6 +210,7 @@ export default function MailingSystem() {
                 className="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white"
               >
                 <option value="allClubMembers">All Club Members</option>
+                <option value="singleMember">Single Member</option>
                 <option value="specificMembers">Specific Members</option>
                 <option value="custom">Custom List (CSV)</option>
               </select>
@@ -176,22 +219,20 @@ export default function MailingSystem() {
             {emailType === "custom" && (
               <div>
                 <label className="block text-sm mb-2">
-                  Upload CSV {"  "}
-                  <span className="text-red-400">*</span>
+                  Upload CSV <span className="text-red-400">*</span>
                 </label>
-
                 <input
                   type="file"
                   accept=".csv"
                   onChange={handleFileChange}
                   required
                   className="block w-full text-sm text-slate-500
-              file:mr-4 file:py-2 file:px-4
-              file:rounded-full file:border-0
-              file:text-sm
-              file:bg-gray-700 file:text-white
-              hover:file:bg-gray-700
-            "
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-full file:border-0
+                    file:text-sm
+                    file:bg-gray-700 file:text-white
+                    hover:file:bg-gray-700
+                  "
                 />
               </div>
             )}
@@ -199,8 +240,7 @@ export default function MailingSystem() {
             {emailType === "specificMembers" && (
               <div>
                 <label className="block text-sm mb-2">
-                  Specify Criteria {"  "}
-                  <span className="text-red-400">*</span>
+                  Specify Criteria <span className="text-red-400">*</span>
                 </label>
                 {criteria.roles.map((role, index) => (
                   <div key={index} className="flex items-center mb-2">
@@ -239,7 +279,7 @@ export default function MailingSystem() {
                     )}
                   </div>
                 ))}
-                <p className="mt-8"> </p>
+                <p className="mt-8"></p>
                 {criteria.years.map((year, index) => (
                   <div key={index} className="flex items-center mb-2">
                     <select
@@ -280,21 +320,53 @@ export default function MailingSystem() {
               </div>
             )}
 
-            <div>
-              <label className="block text-sm mb-2">Attachments</label>
-              <input
-                type="file"
-                multiple
-                onChange={handleAttachmentsChange}
-                className="block w-full text-sm text-slate-500
-              file:mr-4 file:py-2 file:px-4
-              file:rounded-full file:border-0
-              file:text-sm
-              file:bg-gray-700 file:text-white
-              hover:file:bg-gray-700
-            "
-              />
-            </div>
+            {emailType === "singleMember" && (
+              <div>
+                <label className="block text-sm mb-2">
+                  Select Members <span className="text-red-400">*</span>
+                </label>
+                {selectedMembers.map((member, index) => (
+                  <div key={index} className="flex items-center mb-2">
+                    <select
+                      value={member}
+                      onChange={(e) =>
+                        handleMemberChange(index, e.target.value)
+                      }
+                      required
+                      className="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white"
+                    >
+                      <option value="">Select Member</option>
+                      {members.map((member) => (
+                        <option key={member.email} value={member.email}>
+                          {member.name} ({member.email})
+                        </option>
+                      ))}
+                    </select>
+                    {index === selectedMembers.length - 1 && (
+                      <div className="flex flex-row items-center justify-center">
+                        <button
+                          type="button"
+                          onClick={addMemberField}
+                          className="ml-2 p-2 bg-blue-600 text-white rounded"
+                        >
+                          +
+                        </button>
+
+                        {index > 0 && (
+                          <button
+                            type="button"
+                            onClick={removeLastMemberField}
+                            className="ml-2 p-2 bg-red-500 text-white rounded"
+                          >
+                            -
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
 
             <div>
               <label className="block text-sm mb-2">
@@ -309,7 +381,6 @@ export default function MailingSystem() {
                 required
               />
             </div>
-
             <div>
               <label className="block text-sm mb-2">
                 Message {"  "}
@@ -319,31 +390,38 @@ export default function MailingSystem() {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 className="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white"
-                rows={4}
+                rows={5}
                 required
+              ></textarea>
+            </div>
+            <div>
+              <label className="block text-sm mb-2">Attachments:</label>
+              <input
+                type="file"
+                onChange={handleAttachmentsChange}
+                multiple
+                className="block w-full text-sm text-slate-500
+                  file:mr-4 file:py-2 file:px-4
+                  file:rounded-full file:border-0
+                  file:text-sm
+                  file:bg-gray-700 file:text-white
+                  hover:file:bg-gray-700
+                "
               />
             </div>
-
-            {error && <p className="text-red-400">{error}</p>}
+            {error && <p className="text-red-500 text-center">{error}</p>}
             {success && (
-              <p className="text-green-400">Email sent successfully!</p>
+              <p className="text-green-500 text-center">
+                Email sent successfully!
+              </p>
             )}
-            {loading ? (
-              <button
-                type="submit"
-                className="w-full p-2 bg-blue-900 text-white rounded"
-                disabled
-              >
-                Sending...
-              </button>
-            ) : (
-              <button
-                type="submit"
-                className="w-full p-2 bg-blue-600 text-white rounded"
-              >
-                Send Email
-              </button>
-            )}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              {loading ? "Sending..." : "Send Email"}
+            </button>
           </form>
         </section>
       </div>

@@ -91,6 +91,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
     const roles = JSON.parse(formData.get("roles") as string);
     const years = JSON.parse(formData.get("years") as string);
     recipients = await getSpecificMembers(roles, years);
+  } else if (emailType === "singleMember") {
+    const selectedMembers = formData.getAll("recipients") as string[];
+    recipients = selectedMembers;
   }
 
   const attachments: any[] = [];
