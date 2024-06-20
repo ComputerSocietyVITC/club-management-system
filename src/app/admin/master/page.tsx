@@ -31,26 +31,6 @@ const Page = () => {
     fetchMembers();
   }, []);
 
-  useEffect(() => {
-    console.log("MEMBERS:::");
-    console.log(members);
-
-    // Define the regular expression to match four consecutive digits
-    const yearRegex = /\d{4}/;
-
-    members.forEach((member) => {
-      const email = member.email;
-      const match = email.match(yearRegex);
-
-      if (match) {
-        const year = match[0];
-        console.log(`Email: ${email}, Extracted year: ${year}`);
-      } else {
-        console.log(`Email: ${email}, No year found.`);
-      }
-    });
-  }, [members]);
-
   const handleAddMember = async (event: React.FormEvent) => {
     event.preventDefault();
     const memberExists = members.some(
