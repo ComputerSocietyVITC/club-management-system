@@ -17,7 +17,7 @@ const roles = ["Master", "OB", "Technical", "Management", "Design", "SMC"];
 const years = ["2022", "2023", "2024"];
 
 export default function MailingSystem() {
-  const { data: session } = useSession<SessionData>();
+  const { data: session } = useSession();
   const [emailType, setEmailType] = useState<EmailType>("allClubMembers");
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [attachments, setAttachments] = useState<File[]>([]);
