@@ -34,7 +34,7 @@ const Page = () => {
   const handleAddMember = async (event: React.FormEvent) => {
     event.preventDefault();
     const memberExists = members.some(
-      (member) => member.email === newMember.email
+      (member) => member.email === newMember.email,
     );
 
     if (!isEditing && !memberExists) {
@@ -62,8 +62,8 @@ const Page = () => {
       const updatedMember = await response.json();
       setMembers(
         members.map((member) =>
-          member.email === newMember.email ? updatedMember : member
-        )
+          member.email === newMember.email ? updatedMember : member,
+        ),
       );
       setIsEditing(false);
     }
@@ -119,7 +119,10 @@ const Page = () => {
             </div>
             {/* Adjust the number of columns and gap as needed */}
             {members.map((member, idx) => (
-              <div key={idx} className="grid grid-cols-6 gap-2 items-center text-sm">
+              <div
+                key={idx}
+                className="grid grid-cols-6 gap-2 items-center text-sm"
+              >
                 {/* This ensures each member's info is in one row */}
                 <span className="col-span-1">{member.name}</span>
                 <span className="col-span-1">{member.email}</span>
