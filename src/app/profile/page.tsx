@@ -23,10 +23,10 @@ export default function Home() {
         <section className="col-span-1 w-full h-full p-8">
           <section className="text-center text-3xl">Achievements </section>
           <section className="my-12 text-left">
-            <section className="text-xl">* achievement 1</section>      
-            <section className="text-xl">* achievement 2</section>
-            <section className="text-xl">* achievement 3</section>
-            <section className="text-xl">* achievement 4</section>
+            <section className="text-xl-center">* achievement 1</section>      
+            <section className="text-xl-center">* achievement 2</section>
+            <section className="text-xl-center">* achievement 3</section>
+            <section className="text-xl-center">* achievement 4</section>
           </section>
         </section>
       </section>
