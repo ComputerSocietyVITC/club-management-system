@@ -52,10 +52,10 @@ const ProfileModal = ({ className, session }: ProfileModalProps) => {
           <section className="col-span-2">
             {data ? roles[data?.roleId - 1] : ""}
           </section>
-          <section className="">Discord:</section>
-          <section className="col-span-2">{data?.discordid}</section>
-          <section className="">GitHub:</section>
-          <section className="col-span-2">{data?.githubid}</section>
+          <section className="">Discord id:</section>
+          <section className="col-span-2">{data?.discordid ||'[your Discord id]'}</section>
+          <section className="">GitHub id:</section>
+          <section className="col-span-2">{data?.githubid || '[your GitHub id]'}</section>
         </section>
       </section>
     </>
