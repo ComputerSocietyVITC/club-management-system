@@ -19,8 +19,8 @@ export default function Home() {
     <>
       <section className="min-h-screen text-white">
         <section className=" text-[7em] mt-48 px-72 text-center">
-          <section className="text-left">Welcome! </section>
-          <section className="text-right">{data.name}</section>
+          <section className="text-center">Welcome! </section>
+          <section className="text-center">{data.name}</section>
         </section>
         <section className="grid grid-cols-4 min-h-[calc(100vw-55vw)] mx-12 p-4 grid-flow-row gap-4 border items-center border-t-white/[0.2] border-b-white/[0.5] border-l-white/[0.2] border-r-white/[0.2] rounded-3xl bg-black bg-opacity-25 my-32">
           <section className={titleClass}>YOUR TASKS</section>
