@@ -32,8 +32,7 @@ const ProfileModal = ({ className, session }: ProfileModalProps) => {
       });
   }, []);
 
-  console.log("Session data:", session);
-    console.log("Image URL:", session?.user?.image);
+  
   return (
     <section
       className={clsx(
@@ -52,6 +51,7 @@ const ProfileModal = ({ className, session }: ProfileModalProps) => {
           className="rounded-full"
         />
       </div>
+      {/* Profile details */}
       <div className="grid grid-cols-1 gap-4 text-lg">
         <div className="flex justify-between">
           <span className="font-semibold">Name:</span>
