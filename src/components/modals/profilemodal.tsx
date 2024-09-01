@@ -1,12 +1,12 @@
 "use client";
 import clsx from "clsx";
-import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { FaEdit, FaSave } from "react-icons/fa";
 
 interface ProfileModalProps {
   className?: string;
-  session: any; // Consider defining a more specific type if possible
+  session: any;
 }
 
 interface Member {
@@ -21,18 +21,61 @@ const roles = ["Master", "OB", "Technical", "Management", "Design", "SMC"];
 
 const ProfileModal = ({ className, session }: ProfileModalProps) => {
   const imageUrl = session?.user?.image.replace("=s96-c", "=s400-c");
-
+  // State for user profile data
   const [data, setData] = useState<Member>();
+
+   // State to toggle editing mode
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+
+    // State for profile fields being edited (currently only Discord and GitHub IDs)
+  const [profile, setProfile] = useState<{ githubid: string | null; discordid: string | null }>({
+    githubid: null,
+    discordid: null,
+  });
+
+    /**
+   * Fetch user data when the component mounts.
+   */
 
   useEffect(() => {
     fetch("/api/me")
       .then((res) => res.json())
       .then((data) => {
         setData(data);
+        setProfile({
+          githubid: data?.githubid || null,
+          discordid: data?.discordid || null,
+        });
       });
   }, []);
 
+
+  /**
+   * Toggles editing mode.
+   */
+
+  const handleEditClick = () => setIsEditing(!isEditing);
+
   
+  /**
+   * Saves the updated profile data to the server.
+   */
+  const handleSaveClick = () => {
+    
+    fetch(`/api/members/${data?.email}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(profile),
+    })
+      .then((res) => res.json())
+      .then((updatedData) => {
+        setData(updatedData);
+        setIsEditing(false);
+      });
+  };
+
   return (
     <section
       className={clsx(
@@ -51,27 +94,51 @@ const ProfileModal = ({ className, session }: ProfileModalProps) => {
           className="rounded-full"
         />
       </div>
-      {/* Profile details */}
       <div className="grid grid-cols-1 gap-4 text-lg">
         <div className="flex justify-between">
           <span className="font-semibold">Name:</span>
-          <span>{data?.name || 'N/A'}</span>
+          <span>{data?.name || "N/A"}</span>
         </div>
         <div className="flex justify-between">
           <span className="font-semibold">Email:</span>
-          <span>{data?.email || 'N/A'}</span>
+          <span>{data?.email || "N/A"}</span>
         </div>
         <div className="flex justify-between">
           <span className="font-semibold">Role:</span>
-          <span>{data ? roles[data?.roleId - 1] : "Not Assigned"}</span>
+          <span>{data ? roles[data.roleId - 1] : "Not Assigned"}</span>
         </div>
         <div className="flex justify-between">
           <span className="font-semibold">Discord ID:</span>
-          <span>{data?.discordid || '[your Discord ID]'}</span>
+          {isEditing ? (
+            <input
+              type="text"
+              value={profile.discordid || ""}
+              onChange={(e) => setProfile(prev => ({ ...prev, discordid: e.target.value }))}
+              className="border rounded p-1"
+            />
+          ) : (
+            <span>{profile.discordid || "[your Discord ID]"}</span>
+          )}
         </div>
-        <div className="flex justify-between">
+        <div className="flex justify-between items-center">
           <span className="font-semibold">GitHub ID:</span>
-          <span>{data?.githubid || '[your GitHub ID]'}</span>
+          {isEditing ? (
+            <input
+              type="text"
+              value={profile.githubid || ""}
+              onChange={(e) => setProfile(prev => ({ ...prev, githubid: e.target.value }))}
+              className="border rounded p-1"
+            />
+          ) : (
+            <span>{profile.githubid || "[your GitHub ID]"}</span>
+          )}
+        </div>
+        <div className="flex justify-end mt-4">
+          {isEditing ? (
+            <FaSave className="text-xl cursor-pointer" onClick={handleSaveClick} />
+          ) : (
+            <FaEdit className="text-xl cursor-pointer" onClick={handleEditClick} />
+          )}
         </div>
       </div>
     </section>
