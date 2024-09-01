@@ -31,7 +31,7 @@ const AdminPage = () => {
             content="Assign Tasks"
             isButton={true} //random tasks, projects, events, etc
             className="text-3xl "
-            redirectTo="/tools/asignTasks"
+            redirectTo="/tools/assignTasks"
           />
           <GeneralModal
             content="Mailing System"
@@ -41,10 +41,10 @@ const AdminPage = () => {
           />
 
           <GeneralModal
-            content="Mailing System"
+            content="Event Manager"
             isButton={true}
-            className="text-3xl "
-            redirectTo="/tools/mailingSystem"
+            className="text-3xl " // Add events, view events, edit events, delete events
+            redirectTo="/tools/eventManager"
           />
         </section>
         <section className="grid grid-cols-3 min-h-[calc(100vw-55vw)] mx-12 p-4 grid-flow-row gap-4 border items-center border-t-white/[0.2] border-b-white/[0.5] border-l-white/[0.2] border-r-white/[0.2] rounded-3xl bg-black bg-opacity-25 my-36">
