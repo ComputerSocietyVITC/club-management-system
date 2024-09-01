@@ -11,7 +11,7 @@ const navItems = [
   },
   {
     name: "Documentation",
-    link: "/documentation",
+    link: "https://docs.ieeecsvitc.com/",
   },
   {
     name: "Leaderboard",
