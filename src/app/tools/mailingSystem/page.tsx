@@ -5,11 +5,8 @@ import { useSession } from "next-auth/react";
 import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import axios from "axios";
 
-type SessionData = {
-  user: {
-    name: string;
-  };
-};
+
+
 
 type EmailType =
   | "allClubMembers"
@@ -40,7 +37,7 @@ export default function MailingSystem() {
   const [error, setError] = useState<string | null>(null);
   const [members, setMembers] = useState<{ name: string; email: string }[]>([]);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([""]);
-
+  const [showFloatingNav, setShowFloatingNav] = useState(true);
   useEffect(() => {
     setError(null);
     setSuccess(false);
@@ -59,6 +56,7 @@ export default function MailingSystem() {
 
     fetchMembers();
   }, []);
+  
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -198,7 +196,8 @@ export default function MailingSystem() {
   return (
     <>
       <Header />
-      <div className="flex items-center justify-center min-h-screen">
+      
+      <div className="flex items-center justify-center min-h-screen mt-20">
         <section className="w-full max-w-lg p-8 bg-gray-800 bg-opacity-20 rounded-lg shadow-md text-white">
           <h2 className="text-center text-2xl mb-6">Send Email</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -256,30 +255,23 @@ export default function MailingSystem() {
                         </option>
                       ))}
                     </select>
-                    {index === criteria.roles.length - 1 && (
-                      <div className="flex flex-row items-center justify-center">
-                        <button
-                          type="button"
-                          onClick={addRoleField}
-                          className="ml-2 p-2 bg-blue-600 text-white rounded"
-                        >
-                          +
-                        </button>
-
-                        {index > 0 && (
-                          <button
-                            type="button"
-                            onClick={removeLastRoleField}
-                            className="ml-2 p-2 bg-red-500 text-white rounded"
-                          >
-                            -
-                          </button>
-                        )}
-                      </div>
-                    )}
+                    <button
+                      type="button"
+                      onClick={removeLastRoleField}
+                      className="ml-2 px-4 py-2 bg-red-500 text-white rounded"
+                    >
+                      Remove
+                    </button>
                   </div>
                 ))}
-                <p className="mt-8"></p>
+                <button
+                  type="button"
+                  onClick={addRoleField}
+                  className="w-full px-4 py-2 bg-blue-500 text-white rounded"
+                >
+                  Add Role
+                </button>
+
                 {criteria.years.map((year, index) => (
                   <div key={index} className="flex items-center mb-2">
                     <select
@@ -294,112 +286,94 @@ export default function MailingSystem() {
                         </option>
                       ))}
                     </select>
-                    {index === criteria.years.length - 1 && (
-                      <div className="flex flex-row items-center justify-center">
-                        <button
-                          type="button"
-                          onClick={addYearField}
-                          className="ml-2 p-2 bg-blue-600 text-white rounded"
-                        >
-                          +
-                        </button>
-
-                        {index > 0 && (
-                          <button
-                            type="button"
-                            onClick={removeLastYearField}
-                            className="ml-2 p-2 bg-red-500 text-white rounded"
-                          >
-                            -
-                          </button>
-                        )}
-                      </div>
-                    )}
+                    <button
+                      type="button"
+                      onClick={removeLastYearField}
+                      className="ml-2 px-4 py-2 bg-red-500 text-white rounded"
+                    >
+                      Remove
+                    </button>
                   </div>
                 ))}
+                <button
+                  type="button"
+                  onClick={addYearField}
+                  className="w-full px-4 py-2 bg-blue-500 text-white rounded"
+                >
+                  Add Year
+                </button>
               </div>
             )}
 
             {emailType === "singleMember" && (
               <div>
                 <label className="block text-sm mb-2">
-                  Select Members <span className="text-red-400">*</span>
+                  Select Member(s): <span className="text-red-400">*</span>
                 </label>
                 {selectedMembers.map((member, index) => (
                   <div key={index} className="flex items-center mb-2">
                     <select
                       value={member}
-                      onChange={(e) =>
-                        handleMemberChange(index, e.target.value)
-                      }
-                      required
+                      onChange={(e) => handleMemberChange(index, e.target.value)}
                       className="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white"
                     >
                       <option value="">Select Member</option>
                       {members.map((member) => (
                         <option key={member.email} value={member.email}>
-                          {member.name} ({member.email})
+                          {member.name}
                         </option>
                       ))}
                     </select>
-                    {index === selectedMembers.length - 1 && (
-                      <div className="flex flex-row items-center justify-center">
-                        <button
-                          type="button"
-                          onClick={addMemberField}
-                          className="ml-2 p-2 bg-blue-600 text-white rounded"
-                        >
-                          +
-                        </button>
-
-                        {index > 0 && (
-                          <button
-                            type="button"
-                            onClick={removeLastMemberField}
-                            className="ml-2 p-2 bg-red-500 text-white rounded"
-                          >
-                            -
-                          </button>
-                        )}
-                      </div>
-                    )}
+                    <button
+                      type="button"
+                      onClick={removeLastMemberField}
+                      className="ml-2 px-4 py-2 bg-red-500 text-white rounded"
+                    >
+                      Remove
+                    </button>
                   </div>
                 ))}
+                <button
+                  type="button"
+                  onClick={addMemberField}
+                  className="w-full px-4 py-2 bg-blue-500 text-white rounded"
+                >
+                  Add Member
+                </button>
               </div>
             )}
 
             <div>
               <label className="block text-sm mb-2">
-                Subject {"  "}
-                <span className="text-red-400">*</span>
+                Subject: <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                className="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white"
                 required
+                className="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white"
               />
             </div>
+
             <div>
               <label className="block text-sm mb-2">
-                Message {"  "}
-                <span className="text-red-400">*</span>
+                Message: <span className="text-red-400">*</span>
               </label>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white"
-                rows={5}
                 required
-              ></textarea>
+                className="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white"
+              />
             </div>
+
             <div>
               <label className="block text-sm mb-2">Attachments:</label>
               <input
                 type="file"
-                onChange={handleAttachmentsChange}
                 multiple
+                onChange={handleAttachmentsChange}
                 className="block w-full text-sm text-slate-500
                   file:mr-4 file:py-2 file:px-4
                   file:rounded-full file:border-0
@@ -409,19 +383,22 @@ export default function MailingSystem() {
                 "
               />
             </div>
-            {error && <p className="text-red-500 text-center">{error}</p>}
-            {success && (
-              <p className="text-green-500 text-center">
-                Email sent successfully!
-              </p>
-            )}
+
             <button
               type="submit"
               disabled={loading}
-              className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="w-full px-4 py-2 bg-green-500 text-white rounded"
             >
               {loading ? "Sending..." : "Send Email"}
             </button>
+
+            {success && (
+              <p className="text-green-500 text-center">Email sent successfully!</p>
+            )}
+
+            {error && (
+              <p className="text-red-500 text-center">{error}</p>
+            )}
           </form>
         </section>
       </div>

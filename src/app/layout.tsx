@@ -8,6 +8,7 @@ import Login from "@/components/log";
 import Header from "@/components/header";
 import { FloatingNav } from "@/components/navbar";
 
+
 const montserrat = Montserrat({ subsets: ["latin"] });
 
 function SessionCheck({ children }: { children: ReactNode }) {
